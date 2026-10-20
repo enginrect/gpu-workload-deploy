@@ -1,0 +1,21 @@
+# domain-c Instance → PropagationPolicy(namespaced). 키 없이 sshd만 띄움(리포에 키를 두지 않음).
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata: {name: instances, namespace: domain-c}
+spec:
+  resourceSelectors: [{apiVersion: neocloud.io/v1alpha1, kind: Instance}]
+  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}
+---
+apiVersion: neocloud.io/v1alpha1
+kind: Instance
+metadata: {name: k1, namespace: domain-c, labels: {neocloud.io/project: dev}}
+spec:
+  sku: cpu-4-8g
+  image: docker.io/linuxserver/openssh-server:latest
+  env:
+  - {name: USER_NAME, value: jaygue}
+  - {name: PASSWORD_ACCESS, value: "false"}
+  - {name: PUID, value: "1000"}
+  - {name: PGID, value: "1000"}
+  - {name: TZ, value: Asia/Seoul}
+  ports: [{name: ssh, port: 2222}]

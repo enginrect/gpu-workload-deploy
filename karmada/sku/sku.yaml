@@ -1,0 +1,11 @@
+apiVersion: neocloud.io/v1alpha1
+kind: SKU
+metadata: {name: cpu-4-8g}
+spec: {pool: gpu, deviceClassName: neocloud-h100, gpuCount: 0, topology: {numaNodes: 1}, cpu: "4", memory: 8Gi, ephemeralStorage: 20Gi, egressBandwidth: 1G}
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: ClusterPropagationPolicy
+metadata: {name: sku-cpu-4-8g}
+spec:
+  resourceSelectors: [{apiVersion: neocloud.io/v1alpha1, kind: SKU, name: cpu-4-8g}]
+  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}

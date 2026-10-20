@@ -1,0 +1,8 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata: {name: karmada-root, namespace: argocd}
+spec:
+  project: karmada-test
+  destination: {name: in-cluster, namespace: argocd}
+  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: karmada-argocd-test, path: karmada/apps}
+  syncPolicy: {automated: {selfHeal: true, prune: true}}
