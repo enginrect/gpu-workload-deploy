@@ -1,0 +1,10 @@
+19:02:17 ok=2/4 pending: neocloud-crds=Syn/Prog neocloud-platform-root=Out/Prog
+19:02:37 ok=4/6 pending: kyverno=?/? neocloud-platform-root=Out/Prog
+19:02:58 ok=4/6 pending: kyverno=Out/Prog neocloud-platform-root=Out/Prog
+19:03:18 ok=4/6 pending: kyverno=Out/Prog neocloud-platform-root=Out/Prog
+19:03:38 ok=4/6 pending: kyverno=Out/Prog neocloud-platform-root=Out/Prog
+19:03:58 ok=4/6 pending: kyverno=Out/Prog neocloud-platform-root=Out/Prog
+19:04:18 ok=4/6 pending: kyverno=Out/Prog neocloud-platform-root=Out/Prog
+19:04:38 ok=7/10 pending: gpu-operator=Syn/Prog ndra=Syn/Prog neocloud-platform-root=Out/Prog
+19:04:58 ok=11/15 pending: eg=Out/Miss external-dns=Syn/Prog gatewayclass=Syn/Prog neocloud-platform-root=Syn/Prog
+19:05:18 ok=15/15 pending: 

@@ -1,0 +1,51 @@
+# functional checks after fresh deploy (KST 19:07:50)
+## clusterpolicy
+cluster-policy state=ready
+## resourceslices
+00000-gpu.nvidia.com-test-neo-wkld-wk-gpu-1-djs55   gpu.nvidia.com   gpu-0
+## deviceclasses
+gpu.nvidia.com
+mig.nvidia.com
+neocloud-h100
+vfio.gpu.nvidia.com
+## nri
+ready=1/1 ENABLE_TEST_APIS=1
+## kyverno validatingpolicies
+neocloud-domain                 true
+neocloud-domain-secret          true
+neocloud-instance               true
+neocloud-serverless             true
+neocloud-sku                    true
+neocloud-worker-pod             true
+neocloud-worker-resourceclaim   true
+## webhooks
+ValidatingWebhookConfiguration   kyverno-cel-exception-validating-webhook-cfg
+ValidatingWebhookConfiguration   kyverno-cleanup-validating-webhook-cfg
+ValidatingWebhookConfiguration   kyverno-exception-validating-webhook-cfg
+ValidatingWebhookConfiguration   kyverno-global-context-validating-webhook-cfg
+ValidatingWebhookConfiguration   kyverno-policy-validating-webhook-cfg
+ValidatingWebhookConfiguration   kyverno-resource-validating-webhook-cfg
+ValidatingWebhookConfiguration   kyverno-ttl-validating-webhook-cfg
+MutatingWebhookConfiguration     envoy-gateway-topology-injector.envoy-gateway-system
+MutatingWebhookConfiguration     kyverno-policy-mutating-webhook-cfg
+MutatingWebhookConfiguration     kyverno-resource-mutating-webhook-cfg
+MutatingWebhookConfiguration     kyverno-verify-mutating-webhook-cfg
+## gatewayclass
+accepted=True
+## cilium CRs
+CiliumClusterwideNetworkPolicy   instance-egress
+CiliumL2AnnouncementPolicy       default-l2-policy
+## neocloud-system
+default
+telox-gateway
+telox-manager
+telox-worker
+neocloud-dcgm-exporter-dra
+neocloud:domain-member
+neocloud:ops-backend
+neocloud:telox-gateway
+neocloud:telox-worker
+## crd count
+      66
+## karmada member
+tech-neo-wkld   v1.35.3   Pull   True   4h22m

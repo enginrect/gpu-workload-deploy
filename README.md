@@ -183,3 +183,23 @@ sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 - **Route53**: external-dns provider 전환(위 블록), 자격 증명은 리포 밖.
 - **wave 강제**: hub argocd-cm에 Application health check 추가(hub Argo CD helm values에서) — 지금은 retry로 흡수.
 - hub `argocd-initial-admin-secret` 삭제 상태 — UI/API 로그인 수단(SSO 또는 admin 비밀번호 재설정) 정리.
+
+## 진짜 배포 (2026-10-20) — 빈 클러스터에서 root 하나로 전부 설치
+
+채택(위)과 별개로, 리포가 곧 클러스터 정의인지 확인하기 위해 wkld를 비우고 다시 설치했다. 증빙은 `docs/fresh-deploy-2026-10-20/`.
+
+- **비운 범위**: Instance 4개 · project gateway 오브젝트 · Domain a/b(namespace GC) · SKU · DeviceClass · Kyverno 정책 · Cilium CR · helm 릴리스 6개(`--no-hooks`) · webhook · namespace · ClusterRole · CRD(cilium.io 제외 34개). 남긴 것은 Cilium · kube-vip · karmada-agent. hub 쪽 Application 15개도 먼저 삭제(cascade 없음).
+  - kyverno Application 삭제가 멈춤: 차트 pre-delete hook Job이 cp · GPU taint에 toleration이 없어 Pending → Argo `pre-delete-finalizer`가 안 풀림. finalizer를 직접 제거. 운영에서는 hook Job에 toleration을 주거나 `argocd.argoproj.io/hook-delete-policy`로 처리 필요.
+- **hub 변경**: argocd-cm에 `resource.customizations.health.argoproj.io_Application`(Lua) 추가. 자식 Application이 Synced가 아니면 Progressing으로 보고해 root가 wave 순서를 실제로 기다림. 없으면 자식 14개가 동시에 생성돼 CRD보다 CR이 먼저 들어가 retry로 흡수되는 구조였다.
+- **배포**: `kubectl apply -f bootstrap/` 19:01:08 → 15개 Synced · Healthy 19:05:18 (4분 10초). wave별 READY 시각은 `app-ready-order.txt`.
+
+| wave | Application | READY(KST) |
+|---|---|---|
+| 0 | chart-crds · gateway-crds | 19:02:17 |
+| 0 · 1 | neocloud-crds · system-rbac | 19:02:37 |
+| 2 · 3 · 4 | kyverno · kyverno-policies · nri-topo | 19:04:38 |
+| 4 · 5 | gpu-operator · ndra · deviceclass · cilium-policies | 19:04:58 |
+| 6 | eg · external-dns · gatewayclass · root | 19:05:18 |
+
+- **기능 확인**(`functional-after-fresh.txt`): gpu-operator ClusterPolicy **ready 19:07:04**(Application Healthy보다 2분 뒤 — operand는 ClusterPolicy 뒤에 생기므로 Application health가 driver 준비를 뜻하지 않음), driver · toolkit · dcgm · validator Running, cuda-validator Succeeded, DRA kubelet plugin Running + ResourceSlice gpu-0, DeviceClass 4개(neocloud-h100 포함), nri 1/1 ENABLE_TEST_APIS=1, Kyverno ValidatingPolicy 7개 ready, webhook 11개, GatewayClass Accepted, external-dns Running, Cilium CR 2개, SA 3 · ClusterRole 5, CRD 66, Karmada 멤버 Ready(neocloud API 재수집).
+- **결론**: 리포만으로 플랫폼 전체가 재현된다. Domain · SKU · Instance는 GitOps 밖이므로 지금 클러스터에는 없다(Karmada 또는 telox-manager 경로로 생성).
