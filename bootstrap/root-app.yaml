@@ -19,5 +19,8 @@ spec:
     server: https://kubernetes.default.svc
     namespace: argocd
   syncPolicy:
+    automated:          # apps/ 변경(Application 추가 · 수정)을 자동 반영. prune false — apps/에서 지워도 Application은 남음
+      selfHeal: true
+      prune: false
     syncOptions:
     - ServerSideApply=true

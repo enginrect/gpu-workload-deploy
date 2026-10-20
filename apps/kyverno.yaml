@@ -24,7 +24,10 @@ spec:
     targetRevision: main
     ref: values
   syncPolicy:
-    # 채택 단계: automated 없음 — 수동 sync + diff 검토. 전 Application zero-diff 확인 뒤 automated {selfHeal: true, prune: false}로 올린다.
+    # 2026-10-20 채택 완료(전 Application zero-diff · 재시작 0 확인) 뒤 수동 → automated. prune은 계속 false(리포에서 지운 리소스는 손으로 정리).
+    automated:
+      selfHeal: true
+      prune: false
     syncOptions:
     - ServerSideApply=true
     - CreateNamespace=true
