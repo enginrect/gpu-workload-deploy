@@ -1,0 +1,57 @@
+# tech-neo-wkld gpu-operator values (2026-10-15, chart v26.7.2) — 2026-10-13 값(precompiled 580, 커널 6.8.0-124, migManager off) 위에 추가: driver autoUpgrade off(driver-manager pod 삭제 → PDB 우회 방지), dcgm-exporter DRA 모드(KUBERNETES_ENABLE_DRA) + enablePodUID(SA 토큰 마운트 조건), serviceMonitor off(CRD 없음). RBAC는 manifests/30-dcgm-exporter-dra-rbac.yaml
+daemonsets:
+  tolerations:
+  - effect: NoSchedule
+    key: nvidia.com/gpu
+    operator: Exists
+  - effect: NoSchedule
+    key: node-restriction.kubernetes.io/pool
+    operator: Equal
+    value: gpu
+devicePlugin:
+  enabled: false
+driver:
+  enabled: true
+  usePrecompiled: true
+  version: '580'
+  upgradePolicy:
+    autoUpgrade: false
+migManager:
+  enabled: false
+node-feature-discovery:
+  postDeleteCleanup: false   # GitOps(Argo CD) 추가 — 파일 끝 주석 참고
+  gc:
+    tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+      operator: Exists
+  worker:
+    tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+      operator: Equal
+      value: ''
+    - effect: NoSchedule
+      key: nvidia.com/gpu
+      operator: Exists
+    - effect: NoSchedule
+      key: node-restriction.kubernetes.io/pool
+      operator: Equal
+      value: gpu
+toolkit:
+  env:
+  - name: ACCEPT_NVIDIA_VISIBLE_DEVICES_ENVVAR_WHEN_UNPRIVILEGED
+    value: 'false'
+dcgmExporter:
+  env:
+  - name: KUBERNETES_ENABLE_DRA
+    value: 'true'
+  serviceMonitor:
+    enabled: false
+  enablePodUID: true
+# GitOps(Argo CD) 추가 — 둘 다 helm hook만 없애고 일반 리소스 렌더 결과는 그대로(helm get manifest와 diff 0 확인).
+# - upgradeCRD: pre-upgrade hook Job(manage-crds apply)이 Argo에서는 PreSync가 되어 sync마다 실행됨. CRD는 Application chart-crds 몫.
+# - postDeleteCleanup: NFD post-delete hook이 Argo PostDelete가 되어 Application 삭제 시 node의 NFD label을 지움
+#   → operator가 GPU node를 잃고 driver를 내릴 수 있음. 끈다.
+operator:
+  upgradeCRD: false

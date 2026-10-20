@@ -1,0 +1,25 @@
+# wave 5 — CiliumClusterwideNetworkPolicy instance-egress + CiliumL2AnnouncementPolicy default-l2-policy(03-cilium). Cilium 자체(helm release cilium)는 bootstrap 몫이라 제외
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium-policies
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: neocloud-platform
+  destination:
+    name: tech-neo-wkld
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    path: platform/cilium-policies
+  syncPolicy:
+    # 채택 단계: automated 없음 — 수동 sync + diff 검토. 전 Application zero-diff 확인 뒤 automated {selfHeal: true, prune: false}로 올린다.
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

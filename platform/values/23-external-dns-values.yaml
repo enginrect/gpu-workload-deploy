@@ -1,0 +1,18 @@
+# ExternalDNS 0.23.0 (chart 1.23.0) — Route53 가정 · 미연결 검증용. provider만 inmemory, 나머지는 운영과 같은 값.
+# 설치: helm install external-dns external-dns/external-dns --version 1.23.0 -n external-dns --create-namespace -f 23-external-dns-values.yaml
+# Route53 전환: provider.name aws + AWS 자격 Secret env + --aws-zone-type=public, domainFilters를 실제 zone으로.
+provider:
+  name: inmemory
+extraArgs:
+  - --inmemory-zone=neo.test
+  - --gateway-label-filter=tktech.thakicloud.io/dns-source=true   # dns-source label 있는 Gateway의 route만 (사내 ExternalDNS 규약과 동일)
+# gateway-tcproute 제외: 0.23.0은 TCPRoute를 v1alpha2로 읽는데 standard 1.6 CRD는 v1만 serve → informer가 영원히 sync 안 돼 ExternalDNS 전체가 멈춤(레코드 0건). upstream PR #6755(2026-09-28 merge, v1 이행)가 다음 릴리스에 포함되면 복귀.
+sources: [gateway-httproute, gateway-tlsroute]
+policy: sync
+txtOwnerId: tech-neo-wkld
+domainFilters: [neo.test]
+enableGatewayListenerSets: true      # ListenerSet에 붙은 route의 Gateway 주소 해석 (0.21+)
+logLevel: debug
+interval: 30s
+tolerations:
+- {key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}

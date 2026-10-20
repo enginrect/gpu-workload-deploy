@@ -1,0 +1,10 @@
+# chart: GitHub kubernetes-sigs/dra-driver-nvidia-gpu 태그 v0.5.1의 deployments/helm/dra-driver-nvidia-gpu (NGC helm 저장소엔 25.x만). 이미지 registry.k8s.io/dra-driver-nvidia/dra-driver-nvidia-gpu:v0.5.1
+# nvidia-dra-driver-gpu — dev 동일: 컨테이너화 driver root, device plugin 공존 금지 해제, computeDomains off, pool toleration
+gpuResourcesEnabledOverride: true
+nvidiaDriverRoot: /run/nvidia/driver
+resources:
+  computeDomains:
+    enabled: false
+kubeletPlugin:
+  tolerations:
+  - {key: node-restriction.kubernetes.io/pool, operator: Equal, value: gpu, effect: NoSchedule}

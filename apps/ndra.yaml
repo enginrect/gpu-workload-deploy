@@ -1,0 +1,38 @@
+# wave 4 — NVIDIA DRA driver v0.5.1 helm 채택(release ndra). NGC helm 저장소엔 25.x만 있어 GitHub 태그 v0.5.1의 차트 경로를 git source로. ns는 PSA privileged
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ndra
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: neocloud-platform
+  destination:
+    name: tech-neo-wkld
+    namespace: nvidia-dra-driver-gpu
+  sources:
+  - repoURL: https://github.com/kubernetes-sigs/dra-driver-nvidia-gpu
+    path: deployments/helm/dra-driver-nvidia-gpu
+    targetRevision: v0.5.1
+    helm:
+      releaseName: ndra
+      skipCrds: true
+      valueFiles:
+      - $values/platform/values/ndra.yaml
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    ref: values
+  syncPolicy:
+    # 채택 단계: automated 없음 — 수동 sync + diff 검토. 전 Application zero-diff 확인 뒤 automated {selfHeal: true, prune: false}로 올린다.
+    syncOptions:
+    - ServerSideApply=true
+    - CreateNamespace=true
+    - RespectIgnoreDifferences=true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

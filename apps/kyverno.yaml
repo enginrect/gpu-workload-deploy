@@ -1,0 +1,34 @@
+# wave 2 — Kyverno 3.7.1(v1.17.1) helm 채택. releaseName · namespace = 기존 release(kyverno/kyverno). CRD는 차트 templates(crds subchart)에 있어 이 Application에 포함
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: neocloud-platform
+  destination:
+    name: tech-neo-wkld
+    namespace: kyverno
+  sources:
+  - repoURL: https://kyverno.github.io/kyverno
+    chart: kyverno
+    targetRevision: 3.7.1
+    helm:
+      releaseName: kyverno
+      valueFiles:
+      - $values/platform/values/kyverno.yaml
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    ref: values
+  syncPolicy:
+    # 채택 단계: automated 없음 — 수동 sync + diff 검토. 전 Application zero-diff 확인 뒤 automated {selfHeal: true, prune: false}로 올린다.
+    syncOptions:
+    - ServerSideApply=true
+    - CreateNamespace=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

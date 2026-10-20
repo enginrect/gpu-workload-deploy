@@ -1,0 +1,15 @@
+# Envoy Gateway v1.9.2 helm values (tech). 설치: helm install eg oci://docker.io/envoyproxy/gateway-helm --version v1.9.2 -n envoy-gateway-system --create-namespace --skip-crds -f 21-envoy-gateway-values.yaml
+# --skip-crds 이유: 차트 subchart가 Gateway API v1.6.1 experimental을 동봉 → standard(20-gateway-api-crds.yaml)와 EG 자체 CRD(charts/crds/crds/generated/)를 따로 적용.
+# tech는 cp node가 control-plane NoSchedule, GPU node가 pool taint라 controller · certgen job에 toleration 필요(kyverno와 같은 방식).
+deployment:
+  pod:
+    tolerations:
+    - {key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}
+certgen:
+  job:
+    tolerations:
+    - {key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}
+# GitOps(Argo CD): Application은 helm.skipCrds: true + crds.enabled: false. skipCrds는 crds/ 디렉터리만 빼고
+# subchart charts/crds의 templates(safe-upgrades VAP)는 그대로 렌더하므로 subchart 자체를 끈다 — CRD · VAP는 Application gateway-crds 몫.
+crds:
+  enabled: false

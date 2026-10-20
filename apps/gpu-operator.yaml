@@ -1,0 +1,36 @@
+# wave 4 — NVIDIA gpu-operator v26.7.2 helm 채택(release gpu-operator). driver DaemonSet(OnDelete)은 operator가 ClusterPolicy에서 만든다 → ClusterPolicy diff 0이 곧 driver diff 0.
+# driver pod가 재생성되면 DRA kubelet plugin(ns nvidia-dra-driver-gpu)도 재시작해야 함(README 함정 참고). diff가 생기면 sync하지 말 것
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gpu-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: neocloud-platform
+  destination:
+    name: tech-neo-wkld
+    namespace: gpu-operator
+  sources:
+  - repoURL: https://helm.ngc.nvidia.com/nvidia
+    chart: gpu-operator
+    targetRevision: v26.7.2
+    helm:
+      releaseName: gpu-operator
+      skipCrds: true
+      valueFiles:
+      - $values/platform/values/gpu-operator.yaml
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    ref: values
+  syncPolicy:
+    # 채택 단계: automated 없음 — 수동 sync + diff 검토. 전 Application zero-diff 확인 뒤 automated {selfHeal: true, prune: false}로 올린다.
+    syncOptions:
+    - ServerSideApply=true
+    - CreateNamespace=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

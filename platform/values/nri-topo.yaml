@@ -1,0 +1,16 @@
+# nri-plugins topology-aware v0.14.0 — 설계(Placement §5): reserved cpu 8, pinCPU/pinMemory, annotation 힌트용 ENABLE_TEST_APIS. containerd NRI는 2.x 기본 활성(patchConfig off)
+config:
+  reservedResources:
+    cpu: "8"
+  pinCPU: true
+  pinMemory: true
+  agent:
+    nodeResourceTopology: true
+# extraEnv는 차트 템플릿이 값을 따옴표 없이 렌더해 "1"이 숫자가 됨(DaemonSet 거부) → 설치 후 kubectl set env ENABLE_TEST_APIS=1 로 주입(helm upgrade 시 재주입 필요)
+# GitOps 확인(2026-10-20): 주입 불필요였음. 차트 v0.14.0 daemonset.yaml이 `{{- if ".Values.plugin-test.enableAPIs" }}`(따옴표로 감싼 문자열 → 항상 참)라
+# ENABLE_TEST_APIS="1"을 무조건 렌더한다. 실제 DaemonSet은 generation 1 · managedFields helm뿐(set env는 no-op). values · patch · ignoreDifferences 모두 필요 없음.
+nri:
+  runtime:
+    patchConfig: false
+tolerations:
+- {key: node-restriction.kubernetes.io/pool, operator: Equal, value: gpu, effect: NoSchedule}

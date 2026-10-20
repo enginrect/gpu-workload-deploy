@@ -1,0 +1,12 @@
+# tech-neo-wkld Kyverno 3.7.1 (v1.17.1) — dev 동일(controller 4개 control-plane toleration, CRD migration off)
+crds:
+  migration:
+    enabled: false
+admissionController:
+  tolerations: [{key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}]
+backgroundController:
+  tolerations: [{key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}]
+cleanupController:
+  tolerations: [{key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}]
+reportsController:
+  tolerations: [{key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}]

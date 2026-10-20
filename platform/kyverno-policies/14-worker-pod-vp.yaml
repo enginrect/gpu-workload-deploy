@@ -1,0 +1,60 @@
+# Placement §3 validate — telox-worker SA가 만드는 Pod (오작동 · 자격 증명 유출 시 상한). owner는 Instance 또는 ServerlessInstance
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata: {name: neocloud-worker-pod}
+spec:
+  validationActions: [Deny]
+  evaluation:
+    background: {enabled: false}
+  matchConstraints:
+    namespaceSelector:
+      matchExpressions: [{key: neocloud.io/domain, operator: Exists}]
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: [v1]
+      operations: [CREATE]
+      resources: [pods]
+  variables:
+  - name: worker
+    expression: "'system:serviceaccount:neocloud-system:telox-worker'"
+  - name: owners
+    expression: "has(object.metadata.ownerReferences) ? object.metadata.ownerReferences.filter(o, (o.kind == 'Instance' || o.kind == 'ServerlessInstance') && o.apiVersion == 'neocloud.io/v1alpha1' && has(o.controller) && o.controller) : []"
+  - name: instances
+    expression: "dyn(resource.List('neocloud.io/v1alpha1', 'instances', object.metadata.namespace)).items"
+  - name: serverless
+    expression: "dyn(resource.List('neocloud.io/v1alpha1', 'serverlessinstances', object.metadata.namespace)).items"
+  - name: owner
+    expression: "size(variables.owners) == 1 ? (variables.owners[0].kind == 'Instance' ? variables.instances : variables.serverless).filter(i, i.metadata.name == variables.owners[0].name && string(i.metadata.uid) == string(variables.owners[0].uid)) : []"
+  - name: claims
+    expression: "has(object.spec.resourceClaims) ? dyn(resource.List('resource.k8s.io/v1', 'resourceclaims', object.metadata.namespace)).items : []"
+  - name: poolKey
+    expression: "'node-restriction.kubernetes.io/pool'"
+  - name: podProject
+    expression: "has(object.metadata.labels) && 'neocloud.io/project' in object.metadata.labels ? object.metadata.labels['neocloud.io/project'] : ''"
+  validations:
+  - expression: "request.userInfo.username == variables.worker"
+    messageExpression: "'pods in domain namespaces are created only by telox-worker (got ' + request.userInfo.username + ')'"
+  - expression: "size(variables.owner) == 1"
+    message: "pod must have exactly one controller ownerReference to an existing Instance or ServerlessInstance in the same namespace"
+  - expression: "size(variables.owner) == 1 && has(variables.owner[0].metadata.labels) && 'neocloud.io/project' in variables.owner[0].metadata.labels && variables.owner[0].metadata.labels['neocloud.io/project'] == variables.podProject"
+    message: "pod label neocloud.io/project must equal the owning Instance / ServerlessInstance project label"
+  - expression: "object.spec.containers.all(c, has(c.resources.requests) && has(c.resources.limits) && ['cpu', 'memory', 'ephemeral-storage'].all(r, r in c.resources.requests && r in c.resources.limits && quantity(c.resources.requests[r]).compareTo(quantity(c.resources.limits[r])) == 0))"
+    message: "every container needs cpu / memory / ephemeral-storage with request == limit"
+  - expression: "object.spec.containers.all(c, !string(c.resources.requests['cpu']).contains('m') && !string(c.resources.requests['cpu']).contains('.'))"
+    message: "cpu must be an integer number of cores"
+  - expression: "has(object.spec.hostUsers) && object.spec.hostUsers == false"
+    message: "hostUsers must be false"
+  - expression: "has(object.spec.automountServiceAccountToken) && object.spec.automountServiceAccountToken == false"
+    message: "automountServiceAccountToken must be false"
+  - expression: "has(object.spec.dnsPolicy) && object.spec.dnsPolicy == 'None'"
+    message: "dnsPolicy must be None"
+  - expression: "!has(object.spec.runtimeClassName)"
+    message: "runtimeClassName is not allowed"
+  - expression: "!has(object.spec.resourceClaims) || object.spec.resourceClaims.all(rc, has(rc.resourceClaimName) && variables.claims.exists(c, c.metadata.name == rc.resourceClaimName && has(c.metadata.ownerReferences) && c.metadata.ownerReferences.exists(o, o.kind == variables.owners[0].kind && o.name == variables.owners[0].name)))"
+    message: "resourceClaims must reference ResourceClaims owned by the same Instance / ServerlessInstance"
+  - expression: "has(object.spec.nodeSelector) && size(object.spec.nodeSelector) == 1 && variables.poolKey in object.spec.nodeSelector"
+    message: "nodeSelector must be exactly the pool label"
+  - expression: "has(object.spec.tolerations) && object.spec.tolerations.all(t, (has(t.key) && t.key == variables.poolKey && has(t.operator) && t.operator == 'Equal') || (has(t.key) && t.key in ['node.kubernetes.io/not-ready', 'node.kubernetes.io/unreachable'] && has(t.effect) && t.effect == 'NoExecute'))"
+    message: "tolerations may only be Equal on the pool key (no Exists, no control-plane); apiserver default not-ready/unreachable NoExecute tolerations are allowed"
+  - expression: "object.spec.containers.all(c, !has(c.securityContext) || !has(c.securityContext.procMount))"
+    message: "procMount is not allowed"

@@ -1,0 +1,34 @@
+# wave 4 — nri-resource-policy-topology-aware v0.14.0 helm 채택(release nri-topo, ns kube-system). ENABLE_TEST_APIS=1은 차트가 항상 렌더(values/nri-topo.yaml 주석)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nri-topo
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: neocloud-platform
+  destination:
+    name: tech-neo-wkld
+    namespace: kube-system
+  sources:
+  - repoURL: https://containers.github.io/nri-plugins
+    chart: nri-resource-policy-topology-aware
+    targetRevision: v0.14.0
+    helm:
+      releaseName: nri-topo
+      skipCrds: true
+      valueFiles:
+      - $values/platform/values/nri-topo.yaml
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    ref: values
+  syncPolicy:
+    # 채택 단계: automated 없음 — 수동 sync + diff 검토. 전 Application zero-diff 확인 뒤 automated {selfHeal: true, prune: false}로 올린다.
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

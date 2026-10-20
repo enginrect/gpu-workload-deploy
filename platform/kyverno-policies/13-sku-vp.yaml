@@ -1,0 +1,26 @@
+# Placement §3 validate — SKU 오브젝트(telox-manager 운영 identity의 상한)
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata: {name: neocloud-sku}
+spec:
+  validationActions: [Deny]
+  evaluation:
+    background: {enabled: false}
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [neocloud.io]
+      apiVersions: [v1alpha1]
+      operations: [CREATE, UPDATE]
+      resources: [skus]
+  variables:
+  - name: deviceClasses
+    expression: "dyn(resource.List('resource.k8s.io/v1', 'deviceclasses', '')).items.map(d, d.metadata.name)"
+  - name: pools
+    expression: "dyn(resource.List('v1', 'nodes', '')).items.filter(n, 'node-restriction.kubernetes.io/pool' in n.metadata.labels).map(n, n.metadata.labels['node-restriction.kubernetes.io/pool'])"
+  validations:
+  - expression: "object.spec.deviceClassName in variables.deviceClasses"
+    messageExpression: "'DeviceClass ' + object.spec.deviceClassName + ' does not exist'"
+  - expression: "object.spec.pool in variables.pools"
+    messageExpression: "'pool ' + object.spec.pool + ' has no node with label node-restriction.kubernetes.io/pool'"
+  - expression: "request.operation == 'CREATE' || object.spec == oldObject.spec"
+    message: "SKU spec is immutable (Kyverno); publish a new name"

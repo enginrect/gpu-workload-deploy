@@ -1,0 +1,14 @@
+# Envoy Gateway 차트(gateway-helm · gateway-crds-helm)는 docker.io OCI 레지스트리 — Argo CD는 OCI helm 저장소를 enableOCI로 선언해야 한다.
+# 공개 레지스트리라 자격 증명 없음(이 Secret에 비밀값을 넣지 말 것 — 리포가 public).
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-envoyproxy-oci
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  name: envoyproxy
+  type: helm
+  url: docker.io/envoyproxy
+  enableOCI: "true"

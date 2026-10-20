@@ -1,0 +1,89 @@
+# ServerlessInstance CRD — serverless 배포 단위. ServerlessInstance 하나 = endpoint 하나 = worker Pod 0..N(같은 SKU · 같은 이미지).
+# Instance와 다른 점: 배치 보장 없음(NUMA strict 힌트 · 고정 LB IP · PDB · PVC 없음), worker 수는 gateway가 scale 서브리소스로 바꿈, Service는 ClusterIP(gateway namespace에서만 ingress).
+# 같은 점: domain namespace · project label · SKU · Kyverno 관문 · worker Pod의 PSS · seccomp · userns · default-deny · GPU 배타(DRA claim).
+# spec = telox-manager(1단계 kubeconfig · 2단계 고객 토큰), spec.workers = telox-gateway(scale 서브리소스만), status = telox-worker
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: serverlessinstances.neocloud.io
+spec:
+  group: neocloud.io
+  scope: Namespaced
+  names: {kind: ServerlessInstance, plural: serverlessinstances, singular: serverlessinstance, shortNames: [sli]}
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+      scale: {specReplicasPath: .spec.workers, statusReplicasPath: .status.readyWorkers, labelSelectorPath: .status.selector}   # gateway autoscaler는 이 서브리소스만 씀(RBAC serverlessinstances/scale)
+    additionalPrinterColumns:
+    - {name: SKU,     type: string,  jsonPath: .spec.sku}
+    - {name: Phase,   type: string,  jsonPath: .status.phase}
+    - {name: Workers, type: integer, jsonPath: .spec.workers}
+    - {name: Ready,   type: integer, jsonPath: .status.readyWorkers}
+    - {name: Max,     type: integer, jsonPath: .spec.scaling.maxWorkers}
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: [spec]
+        properties:
+          spec:
+            type: object
+            required: [sku, image, port, scaling]
+            x-kubernetes-validations:
+            - rule: "self.sku == oldSelf.sku"
+              message: "sku is immutable"
+            - rule: "self.workers <= self.scaling.maxWorkers"
+              message: "workers cannot exceed scaling.maxWorkers"
+            properties:
+              sku:             {type: string, pattern: '^[a-z0-9-]+$'}
+              image:           {type: string}
+              imagePullSecret: {type: string}
+              command:         {type: array, items: {type: string}}
+              env:
+                type: array
+                items:
+                  type: object
+                  required: [name, value]
+                  properties: {name: {type: string}, value: {type: string}}
+              port:            {type: integer, minimum: 1, maximum: 65535}       # 핸들러 HTTP 포트. gateway → Service(ClusterIP) → worker
+              scaling:
+                type: object
+                required: [maxWorkers]
+                x-kubernetes-validations:
+                - rule: "self.minWorkers <= self.maxWorkers"
+                  message: "minWorkers cannot exceed maxWorkers"
+                properties:
+                  minWorkers:         {type: integer, minimum: 0, default: 0}   # 0 = scale-to-zero. 상시 warm worker는 1 이상
+                  maxWorkers:         {type: integer, minimum: 1}               # namespace 합이 Domain spec.serverless.maxWorkers 이하 — Kyverno
+                  idleTimeoutSeconds: {type: integer, minimum: 0, default: 300} # gateway가 요청 없는 worker를 내리는 기준(gateway 정책 값)
+              workers:         {type: integer, minimum: 0, default: 0}          # desired worker 수. gateway autoscaler가 scale 서브리소스로 씀. 실제 = clamp(workers, minWorkers, maxWorkers)
+          status:
+            type: object
+            properties:
+              phase:              {type: string, enum: [Idle, Scaling, Ready, Failed]}
+              desiredWorkers:     {type: integer}
+              readyWorkers:       {type: integer}
+              selector:           {type: string}      # scale 서브리소스 labelSelectorPath — neocloud.io/serverless=<name>
+              service:            {type: string}      # gateway가 호출할 ClusterIP Service 이름
+              observedGeneration: {type: integer}
+              workers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:     {type: string}
+                    nodeName: {type: string}
+                    ready:    {type: boolean}
+                    gpus:     {type: array, items: {type: string}}
+              conditions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:               {type: string}
+                    status:             {type: string}
+                    reason:             {type: string}
+                    message:            {type: string}
+                    lastTransitionTime: {type: string}

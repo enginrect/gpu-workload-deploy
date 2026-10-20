@@ -1,0 +1,28 @@
+# wave 0 — helm 차트 crds/ 디렉터리의 CRD를 차트 버전 그대로 복사(platform/chart-crds/<chart>-<version>/). 차트 Application은 skipCrds: true.
+# computedomains · computedomaincliques는 gpu-operator와 ndra 차트가 둘 다 동봉(내용 동일) → 한 곳(dra-driver-nvidia-gpu-v0.5.1)에서만 관리. Kyverno CRD는 차트 templates(crds subchart)라 Application kyverno에 남김
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: chart-crds
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: neocloud-platform
+  destination:
+    name: tech-neo-wkld
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    path: platform/chart-crds
+    directory:
+      recurse: true
+  syncPolicy:
+    # 채택 단계: automated 없음 — 수동 sync + diff 검토. 전 Application zero-diff 확인 뒤 automated {selfHeal: true, prune: false}로 올린다.
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

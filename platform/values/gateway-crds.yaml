@@ -1,0 +1,9 @@
+# Envoy Gateway gateway-crds-helm v1.9.2 — Gateway API v1.6.1 standard(CRD 10 + safe-upgrades VAP) + Envoy Gateway CRD 8종.
+# 렌더 결과는 원본 manifests/20-gateway-api-crds.yaml + gateway-helm charts/crds/crds/generated/와 같은 내용(20개 오브젝트 diff 0 확인, 2026-10-20).
+# channel은 standard 고정 — safe-upgrades VAP가 standard → experimental UPDATE를 거부한다.
+crds:
+  gatewayAPI:
+    enabled: true
+    channel: standard
+  envoyGateway:
+    enabled: true

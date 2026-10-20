@@ -1,0 +1,20 @@
+# dcgm-exporter DRA 모드(KUBERNETES_ENABLE_DRA=true)용 읽기 권한 — gpu-operator v26.7.2 ClusterPolicy 경로는 pods만 주고 resourceslices는 TODO라 별도 부여
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: neocloud-dcgm-exporter-dra
+rules:
+- apiGroups: ["resource.k8s.io"]
+  resources: ["resourceslices"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: neocloud-dcgm-exporter-dra
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: neocloud-dcgm-exporter-dra}
+subjects:
+- {kind: ServiceAccount, name: nvidia-dcgm-exporter, namespace: gpu-operator}
