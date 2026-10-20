@@ -1,7 +1,9 @@
 # Resource §3 — SKU의 GPU 종류. full GPU(type gpu)만
 apiVersion: resource.k8s.io/v1
 kind: DeviceClass
-metadata: {name: neocloud-h100}
+metadata:
+  name: neocloud-h100
+  labels: {neocloud.io/gitops: argocd}   # 2026-10-20 GitOps 반영 확인용(리포 변경 → automated sync) — metadata만, 동작 영향 없음
 spec:
   selectors:
   - cel:
