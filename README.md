@@ -203,3 +203,8 @@ sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 
 - **기능 확인**(`functional-after-fresh.txt`): gpu-operator ClusterPolicy **ready 19:07:04**(Application Healthy보다 2분 뒤 — operand는 ClusterPolicy 뒤에 생기므로 Application health가 driver 준비를 뜻하지 않음), driver · toolkit · dcgm · validator Running, cuda-validator Succeeded, DRA kubelet plugin Running + ResourceSlice gpu-0, DeviceClass 4개(neocloud-h100 포함), nri 1/1 ENABLE_TEST_APIS=1, Kyverno ValidatingPolicy 7개 ready, webhook 11개, GatewayClass Accepted, external-dns Running, Cilium CR 2개, SA 3 · ClusterRole 5, CRD 66, Karmada 멤버 Ready(neocloud API 재수집).
 - **결론**: 리포만으로 플랫폼 전체가 재현된다. Domain · SKU · Instance는 GitOps 밖이므로 지금 클러스터에는 없다(Karmada 또는 telox-manager 경로로 생성).
+
+### 순서 보강 (2026-10-20, 진짜 배포 뒤)
+- 진짜 배포에서 ndra(wave 4)의 DRA kubelet plugin이 driver pod보다 먼저 떴다(plugin 19:04:26 · driver 시작 19:04:32 · driver Ready 19:05:42). plugin의 init-container가 `/run/nvidia/driver`에 nvidia-smi · libnvidia-ml이 생길 때까지 재시도해 결과는 정상이었고, full GPU claim probe로 devnode 5개 · libcuda/libnvidia-ml 580.159.03 · `nvidia-smi -L` H100 NVL 주입을 확인했다(`docs/fresh-deploy-2026-10-20/`).
+- 우연에 기대지 않도록 둘을 고정: hub argocd-cm에 `nvidia.com/ClusterPolicy` health check(state ready → Healthy, 아니면 Progressing)를 추가해 gpu-operator Application이 driver 스택 준비 뒤에만 Healthy가 되게 했고, `apps/ndra.yaml`을 wave 5로 내렸다. 이제 root는 driver ready 뒤에 ndra를 만든다.
+- driver pod가 **재생성**될 때 plugin을 재시작해야 하는 규칙은 별도(설계 Appendix) — GitOps 순서와 무관하게 gpu-operator 업그레이드 절차에서 지킬 것.

@@ -6,7 +6,7 @@ metadata:
   name: ndra
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/sync-wave: "5"   # gpu-operator(4) 뒤. hub의 ClusterPolicy health check와 함께 driver ready 뒤에 DRA plugin이 뜨게
     argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
   project: neocloud-platform
