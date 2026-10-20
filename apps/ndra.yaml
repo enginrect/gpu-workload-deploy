@@ -1,4 +1,5 @@
-# wave 4 — NVIDIA DRA driver v0.5.1 helm 채택(release ndra). NGC helm 저장소엔 25.x만 있어 GitHub 태그 v0.5.1의 차트 경로를 git source로. ns는 PSA privileged
+# wave 4 — NVIDIA DRA driver v0.5.1 helm 채택(release ndra). NGC helm 저장소엔 25.x만 있어 GitHub 태그 v0.5.1의 차트(deployments/helm/dra-driver-nvidia-gpu)를
+# 이 리포 platform/charts/dra-driver-nvidia-gpu-v0.5.1에 복사해 git source로 씀(upstream 직접 참조는 repo-server fetch timeout — UPSTREAM.md). ns는 PSA privileged
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -13,9 +14,9 @@ spec:
     name: tech-neo-wkld
     namespace: nvidia-dra-driver-gpu
   sources:
-  - repoURL: https://github.com/kubernetes-sigs/dra-driver-nvidia-gpu
-    path: deployments/helm/dra-driver-nvidia-gpu
-    targetRevision: v0.5.1
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    path: platform/charts/dra-driver-nvidia-gpu-v0.5.1
+    targetRevision: main
     helm:
       releaseName: ndra
       skipCrds: true

@@ -12,7 +12,6 @@ spec:
   - https://kyverno.github.io/kyverno
   - https://containers.github.io/nri-plugins
   - https://helm.ngc.nvidia.com/nvidia
-  - https://github.com/kubernetes-sigs/dra-driver-nvidia-gpu
   - docker.io/envoyproxy
   - https://kubernetes-sigs.github.io/external-dns/
   destinations:
