@@ -1,0 +1,5 @@
+
+===== gateway.networking.k8s.io/GatewayClass /neocloud ======
+3a4,5
+>   annotations:
+>     argocd.argoproj.io/tracking-id: gatewayclass:gateway.networking.k8s.io/GatewayClass:/neocloud

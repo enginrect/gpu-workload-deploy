@@ -1,0 +1,28 @@
+
+===== /ServiceAccount kube-system/nri-resource-policy-topology-aware ======
+4a5
+>     argocd.argoproj.io/tracking-id: nri-topo:/ServiceAccount:kube-system/nri-resource-policy-topology-aware
+
+===== apps/DaemonSet kube-system/nri-resource-policy-topology-aware ======
+4a5
+>     argocd.argoproj.io/tracking-id: nri-topo:apps/DaemonSet:kube-system/nri-resource-policy-topology-aware
+
+===== config.nri/TopologyAwarePolicy kube-system/default ======
+4a5
+>     argocd.argoproj.io/tracking-id: nri-topo:config.nri/TopologyAwarePolicy:kube-system/default
+
+===== rbac.authorization.k8s.io/ClusterRole /nri-resource-policy-topology-aware ======
+4a5
+>     argocd.argoproj.io/tracking-id: nri-topo:rbac.authorization.k8s.io/ClusterRole:kube-system/nri-resource-policy-topology-aware
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /nri-resource-policy-topology-aware ======
+4a5
+>     argocd.argoproj.io/tracking-id: nri-topo:rbac.authorization.k8s.io/ClusterRoleBinding:kube-system/nri-resource-policy-topology-aware
+
+===== rbac.authorization.k8s.io/Role kube-system/nri-resource-policy-topology-aware ======
+4a5
+>     argocd.argoproj.io/tracking-id: nri-topo:rbac.authorization.k8s.io/Role:kube-system/nri-resource-policy-topology-aware
+
+===== rbac.authorization.k8s.io/RoleBinding kube-system/nri-resource-policy-topology-aware ======
+4a5
+>     argocd.argoproj.io/tracking-id: nri-topo:rbac.authorization.k8s.io/RoleBinding:kube-system/nri-resource-policy-topology-aware

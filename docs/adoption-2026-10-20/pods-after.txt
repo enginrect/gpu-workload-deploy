@@ -1,0 +1,56 @@
+NAMESPACE               NAME                                                          READY   STATUS      RESTARTS         AGE     IP            NODE                     NOMINATED NODE   READINESS GATES
+domain-a                cpu-a                                                         1/1     Running     0                7d3h    10.17.3.225   test-neo-wkld-wk-gpu-1   <none>           <none>
+domain-a                gpu-a                                                         1/1     Running     0                4d6h    10.17.3.153   test-neo-wkld-wk-gpu-1   <none>           <none>
+domain-b                cpu-b1                                                        1/1     Running     0                7d3h    10.17.3.116   test-neo-wkld-wk-gpu-1   <none>           <none>
+domain-b                cpu-b2                                                        1/1     Running     0                7d3h    10.17.3.226   test-neo-wkld-wk-gpu-1   <none>           <none>
+envoy-gateway-system    envoy-domain-a-gw-dev-59f3c9b1-566c7bd9b6-gwtnr               2/2     Running     0                3h40m   10.17.3.56    test-neo-wkld-wk-gpu-1   <none>           <none>
+envoy-gateway-system    envoy-gateway-68b95d594-6lnjs                                 1/1     Running     0                3h42m   10.17.0.25    test-neo-wkld-cp-1       <none>           <none>
+external-dns            external-dns-576ff7888c-lzn9k                                 1/1     Running     0                3h35m   10.17.2.142   test-neo-wkld-cp-3       <none>           <none>
+gpu-operator            gpu-feature-discovery-9pkxp                                   1/1     Running     0                4d8h    10.17.3.161   test-neo-wkld-wk-gpu-1   <none>           <none>
+gpu-operator            gpu-operator-9f98c5b59-lr4cw                                  1/1     Running     27 (4h56m ago)   5d2h    10.17.2.159   test-neo-wkld-cp-3       <none>           <none>
+gpu-operator            gpu-operator-node-feature-discovery-gc-545fcc7bd5-65fn9       1/1     Running     0                5d2h    10.17.1.218   test-neo-wkld-cp-2       <none>           <none>
+gpu-operator            gpu-operator-node-feature-discovery-master-74f7f6fc45-zt6h6   1/1     Running     0                5d2h    10.17.1.30    test-neo-wkld-cp-2       <none>           <none>
+gpu-operator            gpu-operator-node-feature-discovery-worker-9ccnt              1/1     Running     0                5d2h    10.17.0.98    test-neo-wkld-cp-1       <none>           <none>
+gpu-operator            gpu-operator-node-feature-discovery-worker-d9l7t              1/1     Running     0                5d2h    10.17.2.230   test-neo-wkld-cp-3       <none>           <none>
+gpu-operator            gpu-operator-node-feature-discovery-worker-kg2gw              1/1     Running     0                5d2h    10.17.1.92    test-neo-wkld-cp-2       <none>           <none>
+gpu-operator            gpu-operator-node-feature-discovery-worker-mkmtl              1/1     Running     0                5d2h    10.17.3.36    test-neo-wkld-wk-gpu-1   <none>           <none>
+gpu-operator            nvidia-container-toolkit-daemonset-sm8k4                      1/1     Running     0                4d8h    10.17.3.102   test-neo-wkld-wk-gpu-1   <none>           <none>
+gpu-operator            nvidia-cuda-validator-w9sf4                                   0/1     Completed   0                4d8h    10.17.3.145   test-neo-wkld-wk-gpu-1   <none>           <none>
+gpu-operator            nvidia-dcgm-exporter-vqtb5                                    1/1     Running     0                4d8h    10.17.3.106   test-neo-wkld-wk-gpu-1   <none>           <none>
+gpu-operator            nvidia-driver-daemonset-6.8.0-124-generic-ubuntu24.04-245s6   1/1     Running     0                4d8h    10.17.3.117   test-neo-wkld-wk-gpu-1   <none>           <none>
+gpu-operator            nvidia-operator-validator-q9mxd                               1/1     Running     0                4d8h    10.17.3.27    test-neo-wkld-wk-gpu-1   <none>           <none>
+karmada-system          karmada-agent-65584955d6-v7xqn                                1/1     Running     0                108m    10.17.0.93    test-neo-wkld-cp-1       <none>           <none>
+kube-system             cilium-2zqlc                                                  1/1     Running     0                7d3h    10.7.56.202   test-neo-wkld-cp-2       <none>           <none>
+kube-system             cilium-96r4n                                                  1/1     Running     0                7d3h    10.7.56.206   test-neo-wkld-wk-gpu-1   <none>           <none>
+kube-system             cilium-ck9pv                                                  1/1     Running     0                7d3h    10.7.56.201   test-neo-wkld-cp-1       <none>           <none>
+kube-system             cilium-envoy-75knx                                            1/1     Running     0                7d5h    10.7.56.203   test-neo-wkld-cp-3       <none>           <none>
+kube-system             cilium-envoy-8rf78                                            1/1     Running     0                7d5h    10.7.56.201   test-neo-wkld-cp-1       <none>           <none>
+kube-system             cilium-envoy-jpzxb                                            1/1     Running     1 (7d4h ago)     7d5h    10.7.56.206   test-neo-wkld-wk-gpu-1   <none>           <none>
+kube-system             cilium-envoy-xfncx                                            1/1     Running     0                7d5h    10.7.56.202   test-neo-wkld-cp-2       <none>           <none>
+kube-system             cilium-operator-f7f88b4d9-cszsh                               1/1     Running     75 (10m ago)     7d5h    10.7.56.201   test-neo-wkld-cp-1       <none>           <none>
+kube-system             cilium-r86l8                                                  1/1     Running     0                7d3h    10.7.56.203   test-neo-wkld-cp-3       <none>           <none>
+kube-system             coredns-7d764666f9-cfwrz                                      1/1     Running     0                7d5h    10.17.0.163   test-neo-wkld-cp-1       <none>           <none>
+kube-system             coredns-7d764666f9-s4785                                      1/1     Running     0                7d5h    10.17.0.18    test-neo-wkld-cp-1       <none>           <none>
+kube-system             etcd-test-neo-wkld-cp-1                                       1/1     Running     0                7d5h    10.7.56.201   test-neo-wkld-cp-1       <none>           <none>
+kube-system             etcd-test-neo-wkld-cp-2                                       1/1     Running     0                7d5h    10.7.56.202   test-neo-wkld-cp-2       <none>           <none>
+kube-system             etcd-test-neo-wkld-cp-3                                       1/1     Running     0                7d5h    10.7.56.203   test-neo-wkld-cp-3       <none>           <none>
+kube-system             hubble-relay-bc5c794cc-k2n4z                                  1/1     Running     0                7d3h    10.17.1.111   test-neo-wkld-cp-2       <none>           <none>
+kube-system             hubble-ui-c879fb46b-b6ql5                                     2/2     Running     0                7d3h    10.17.2.72    test-neo-wkld-cp-3       <none>           <none>
+kube-system             kube-apiserver-test-neo-wkld-cp-1                             1/1     Running     0                7d5h    10.7.56.201   test-neo-wkld-cp-1       <none>           <none>
+kube-system             kube-apiserver-test-neo-wkld-cp-2                             1/1     Running     0                7d5h    10.7.56.202   test-neo-wkld-cp-2       <none>           <none>
+kube-system             kube-apiserver-test-neo-wkld-cp-3                             1/1     Running     0                7d5h    10.7.56.203   test-neo-wkld-cp-3       <none>           <none>
+kube-system             kube-controller-manager-test-neo-wkld-cp-1                    1/1     Running     17 (4h56m ago)   7d5h    10.7.56.201   test-neo-wkld-cp-1       <none>           <none>
+kube-system             kube-controller-manager-test-neo-wkld-cp-2                    1/1     Running     20 (11h ago)     7d5h    10.7.56.202   test-neo-wkld-cp-2       <none>           <none>
+kube-system             kube-controller-manager-test-neo-wkld-cp-3                    1/1     Running     12 (5h34m ago)   7d5h    10.7.56.203   test-neo-wkld-cp-3       <none>           <none>
+kube-system             kube-scheduler-test-neo-wkld-cp-1                             1/1     Running     28 (19h ago)     7d5h    10.7.56.201   test-neo-wkld-cp-1       <none>           <none>
+kube-system             kube-scheduler-test-neo-wkld-cp-2                             1/1     Running     8 (4d18h ago)    7d5h    10.7.56.202   test-neo-wkld-cp-2       <none>           <none>
+kube-system             kube-scheduler-test-neo-wkld-cp-3                             1/1     Running     12 (4h56m ago)   7d5h    10.7.56.203   test-neo-wkld-cp-3       <none>           <none>
+kube-system             kube-vip-test-neo-wkld-cp-1                                   1/1     Running     53 (10m ago)     7d5h    10.7.56.201   test-neo-wkld-cp-1       <none>           <none>
+kube-system             kube-vip-test-neo-wkld-cp-2                                   1/1     Running     34 (172m ago)    7d5h    10.7.56.202   test-neo-wkld-cp-2       <none>           <none>
+kube-system             kube-vip-test-neo-wkld-cp-3                                   1/1     Running     47 (3m49s ago)   7d5h    10.7.56.203   test-neo-wkld-cp-3       <none>           <none>
+kube-system             nri-resource-policy-topology-aware-rjbkc                      1/1     Running     4 (4d8h ago)     7d3h    10.17.3.190   test-neo-wkld-wk-gpu-1   <none>           <none>
+kyverno                 kyverno-admission-controller-7b9b9876c4-wmm24                 1/1     Running     21 (4h56m ago)   4d8h    10.17.1.195   test-neo-wkld-cp-2       <none>           <none>
+kyverno                 kyverno-background-controller-56cdbb4dd-7wvvj                 1/1     Running     47 (4h56m ago)   7d3h    10.17.0.231   test-neo-wkld-cp-1       <none>           <none>
+kyverno                 kyverno-cleanup-controller-68d9b468ff-mvkqm                   1/1     Running     45 (4h56m ago)   7d3h    10.17.1.56    test-neo-wkld-cp-2       <none>           <none>
+kyverno                 kyverno-reports-controller-56c84c5dcb-vzl82                   1/1     Running     46 (4h56m ago)   7d3h    10.17.1.239   test-neo-wkld-cp-2       <none>           <none>
+nvidia-dra-driver-gpu   dra-driver-nvidia-gpu-kubelet-plugin-2864q                    1/1     Running     0                4d7h    10.17.3.228   test-neo-wkld-wk-gpu-1   <none>           <none>

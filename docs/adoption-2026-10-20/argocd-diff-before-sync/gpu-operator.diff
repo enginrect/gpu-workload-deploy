@@ -1,0 +1,76 @@
+
+===== /ConfigMap gpu-operator/gpu-operator-node-feature-discovery-master-conf ======
+8a9
+>     argocd.argoproj.io/tracking-id: gpu-operator:/ConfigMap:gpu-operator/gpu-operator-node-feature-discovery-master-conf
+
+===== /ConfigMap gpu-operator/gpu-operator-node-feature-discovery-worker-conf ======
+16a17
+>     argocd.argoproj.io/tracking-id: gpu-operator:/ConfigMap:gpu-operator/gpu-operator-node-feature-discovery-worker-conf
+
+===== /ServiceAccount gpu-operator/gpu-operator ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:/ServiceAccount:gpu-operator/gpu-operator
+
+===== /ServiceAccount gpu-operator/node-feature-discovery ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:/ServiceAccount:gpu-operator/node-feature-discovery
+
+===== apps/DaemonSet gpu-operator/gpu-operator-node-feature-discovery-worker ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:apps/DaemonSet:gpu-operator/gpu-operator-node-feature-discovery-worker
+
+===== apps/Deployment gpu-operator/gpu-operator ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:apps/Deployment:gpu-operator/gpu-operator
+
+===== apps/Deployment gpu-operator/gpu-operator-node-feature-discovery-gc ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:apps/Deployment:gpu-operator/gpu-operator-node-feature-discovery-gc
+
+===== apps/Deployment gpu-operator/gpu-operator-node-feature-discovery-master ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:apps/Deployment:gpu-operator/gpu-operator-node-feature-discovery-master
+
+===== nvidia.com/ClusterPolicy /cluster-policy ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:nvidia.com/ClusterPolicy:gpu-operator/cluster-policy
+
+===== rbac.authorization.k8s.io/ClusterRole /gpu-operator ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/ClusterRole:gpu-operator/gpu-operator
+
+===== rbac.authorization.k8s.io/ClusterRole /gpu-operator-node-feature-discovery ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/ClusterRole:gpu-operator/gpu-operator-node-feature-discovery
+
+===== rbac.authorization.k8s.io/ClusterRole /gpu-operator-node-feature-discovery-gc ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/ClusterRole:gpu-operator/gpu-operator-node-feature-discovery-gc
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /gpu-operator ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/ClusterRoleBinding:gpu-operator/gpu-operator
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /gpu-operator-node-feature-discovery ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/ClusterRoleBinding:gpu-operator/gpu-operator-node-feature-discovery
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /gpu-operator-node-feature-discovery-gc ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/ClusterRoleBinding:gpu-operator/gpu-operator-node-feature-discovery-gc
+
+===== rbac.authorization.k8s.io/Role gpu-operator/gpu-operator ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/Role:gpu-operator/gpu-operator
+
+===== rbac.authorization.k8s.io/Role gpu-operator/gpu-operator-node-feature-discovery-worker ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/Role:gpu-operator/gpu-operator-node-feature-discovery-worker
+
+===== rbac.authorization.k8s.io/RoleBinding gpu-operator/gpu-operator ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/RoleBinding:gpu-operator/gpu-operator
+
+===== rbac.authorization.k8s.io/RoleBinding gpu-operator/gpu-operator-node-feature-discovery-worker ======
+4a5
+>     argocd.argoproj.io/tracking-id: gpu-operator:rbac.authorization.k8s.io/RoleBinding:gpu-operator/gpu-operator-node-feature-discovery-worker

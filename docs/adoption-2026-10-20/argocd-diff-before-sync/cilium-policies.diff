@@ -1,0 +1,8 @@
+
+===== cilium.io/CiliumClusterwideNetworkPolicy /instance-egress ======
+4a5
+>     argocd.argoproj.io/tracking-id: cilium-policies:cilium.io/CiliumClusterwideNetworkPolicy:/instance-egress
+
+===== cilium.io/CiliumL2AnnouncementPolicy /default-l2-policy ======
+4a5
+>     argocd.argoproj.io/tracking-id: cilium-policies:cilium.io/CiliumL2AnnouncementPolicy:/default-l2-policy

@@ -1,0 +1,56 @@
+
+===== /Namespace /neocloud-system ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:/Namespace:/neocloud-system
+
+===== /ServiceAccount neocloud-system/telox-gateway ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:/ServiceAccount:neocloud-system/telox-gateway
+
+===== /ServiceAccount neocloud-system/telox-manager ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:/ServiceAccount:neocloud-system/telox-manager
+
+===== /ServiceAccount neocloud-system/telox-worker ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:/ServiceAccount:neocloud-system/telox-worker
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:neocloud-read ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRole:/kyverno:neocloud-read
+
+===== rbac.authorization.k8s.io/ClusterRole /neocloud-dcgm-exporter-dra ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRole:/neocloud-dcgm-exporter-dra
+
+===== rbac.authorization.k8s.io/ClusterRole /neocloud:domain-member ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRole:/neocloud:domain-member
+
+===== rbac.authorization.k8s.io/ClusterRole /neocloud:ops-backend ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRole:/neocloud:ops-backend
+
+===== rbac.authorization.k8s.io/ClusterRole /neocloud:telox-gateway ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRole:/neocloud:telox-gateway
+
+===== rbac.authorization.k8s.io/ClusterRole /neocloud:telox-worker ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRole:/neocloud:telox-worker
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /neocloud-dcgm-exporter-dra ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRoleBinding:/neocloud-dcgm-exporter-dra
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /neocloud:ops-backend ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRoleBinding:/neocloud:ops-backend
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /neocloud:telox-gateway ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRoleBinding:/neocloud:telox-gateway
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /neocloud:telox-worker ======
+4a5
+>     argocd.argoproj.io/tracking-id: system-rbac:rbac.authorization.k8s.io/ClusterRoleBinding:/neocloud:telox-worker

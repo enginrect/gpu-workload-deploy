@@ -1,0 +1,42 @@
+## clusterpolicies.nvidia.com
+NAME             STATUS   AGE
+cluster-policy   ready    2026-10-13T02:13:46Z
+## kyverno policies
+neocloud-domain                 true
+neocloud-domain-secret          true
+neocloud-instance               true
+neocloud-serverless             true
+neocloud-sku                    true
+neocloud-worker-pod             true
+neocloud-worker-resourceclaim   true
+NAME                                                                 AGE     READY
+validatingpolicy.policies.kyverno.io/neocloud-domain                 6d5h    true
+validatingpolicy.policies.kyverno.io/neocloud-domain-secret          7d3h    true
+validatingpolicy.policies.kyverno.io/neocloud-instance               5d23h   true
+validatingpolicy.policies.kyverno.io/neocloud-serverless             4d8h    true
+validatingpolicy.policies.kyverno.io/neocloud-sku                    7d3h    true
+validatingpolicy.policies.kyverno.io/neocloud-worker-pod             7d3h    true
+validatingpolicy.policies.kyverno.io/neocloud-worker-resourceclaim   7d3h    true
+
+NAME                                               ADMISSION   BACKGROUND   READY   AGE    MESSAGE
+clusterpolicy.kyverno.io/neocloud-domain-pod-pss   true        false        True    7d3h   Ready
+## gw-dev
+NAME     CLASS      ADDRESS      PROGRAMMED   AGE
+gw-dev   neocloud   10.7.56.70   True         3h38m
+## curl
+200
+## karmada
+NAME            VERSION   MODE   READY   AGE
+tech-neo-wkld   v1.35.3   Pull   True    105m
+## instance pods
+NAME    READY   STATUS    RESTARTS   AGE    IP            NODE                     NOMINATED NODE   READINESS GATES
+cpu-a   1/1     Running   0          7d3h   10.17.3.225   test-neo-wkld-wk-gpu-1   <none>           <none>
+gpu-a   1/1     Running   0          4d6h   10.17.3.153   test-neo-wkld-wk-gpu-1   <none>           <none>
+NAME     READY   STATUS    RESTARTS   AGE
+cpu-b1   1/1     Running   0          7d3h
+cpu-b2   1/1     Running   0          7d3h
+## driver/dra/dcgm
+NAME                                                          READY   STATUS    RESTARTS   AGE
+nvidia-driver-daemonset-6.8.0-124-generic-ubuntu24.04-245s6   1/1     Running   0          4d8h
+NAME                                         READY   STATUS    RESTARTS   AGE
+dra-driver-nvidia-gpu-kubelet-plugin-2864q   1/1     Running   0          4d7h

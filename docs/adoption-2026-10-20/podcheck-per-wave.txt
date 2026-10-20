@@ -1,0 +1,43 @@
+## pre-sync
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 52
+unchanged 54/55
+## wave0
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 52
+unchanged 54/55
+## wave1
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 52
+unchanged 54/55
+## wave2
+RESTART kube-system cilium-operator-f7f88b4d9-cszsh 74 -> 75
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 53
+unchanged 53/55
+## wave3
+RESTART kube-system cilium-operator-f7f88b4d9-cszsh 74 -> 75
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 53
+unchanged 53/55
+## wave4-nri
+RESTART kube-system cilium-operator-f7f88b4d9-cszsh 74 -> 75
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 53
+unchanged 53/55
+## wave4-ndra
+RESTART kube-system cilium-operator-f7f88b4d9-cszsh 74 -> 75
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 53
+unchanged 53/55
+## wave4-gpu
+RESTART kube-system cilium-operator-f7f88b4d9-cszsh 74 -> 75
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 53
+unchanged 53/55
+## wave5
+RESTART kube-system cilium-operator-f7f88b4d9-cszsh 74 -> 75
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 53
+unchanged 53/55
+## wave6
+RESTART kube-system cilium-operator-f7f88b4d9-cszsh 74 -> 75
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 53
+RESTART kube-system kube-vip-test-neo-wkld-cp-3 46 -> 47
+unchanged 52/55
+## final
+RESTART kube-system cilium-operator-f7f88b4d9-cszsh 74 -> 75
+RESTART kube-system kube-vip-test-neo-wkld-cp-1 51 -> 53
+RESTART kube-system kube-vip-test-neo-wkld-cp-3 46 -> 47
+unchanged 52/55

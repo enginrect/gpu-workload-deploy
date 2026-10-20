@@ -1,0 +1,188 @@
+
+===== /ConfigMap kyverno/kyverno ======
+58a59
+>     argocd.argoproj.io/tracking-id: kyverno:/ConfigMap:kyverno/kyverno
+
+===== /ConfigMap kyverno/kyverno-metrics ======
+9a10
+>     argocd.argoproj.io/tracking-id: kyverno:/ConfigMap:kyverno/kyverno-metrics
+
+===== /Service kyverno/kyverno-background-controller-metrics ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:/Service:kyverno/kyverno-background-controller-metrics
+
+===== /Service kyverno/kyverno-cleanup-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:/Service:kyverno/kyverno-cleanup-controller
+
+===== /Service kyverno/kyverno-cleanup-controller-metrics ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:/Service:kyverno/kyverno-cleanup-controller-metrics
+
+===== /Service kyverno/kyverno-reports-controller-metrics ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:/Service:kyverno/kyverno-reports-controller-metrics
+
+===== /Service kyverno/kyverno-svc ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:/Service:kyverno/kyverno-svc
+
+===== /Service kyverno/kyverno-svc-metrics ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:/Service:kyverno/kyverno-svc-metrics
+
+===== /ServiceAccount kyverno/kyverno-admission-controller ======
+5a6
+>     argocd.argoproj.io/tracking-id: kyverno:/ServiceAccount:kyverno/kyverno-admission-controller
+
+===== /ServiceAccount kyverno/kyverno-background-controller ======
+5a6
+>     argocd.argoproj.io/tracking-id: kyverno:/ServiceAccount:kyverno/kyverno-background-controller
+
+===== /ServiceAccount kyverno/kyverno-cleanup-controller ======
+5a6
+>     argocd.argoproj.io/tracking-id: kyverno:/ServiceAccount:kyverno/kyverno-cleanup-controller
+
+===== /ServiceAccount kyverno/kyverno-reports-controller ======
+5a6
+>     argocd.argoproj.io/tracking-id: kyverno:/ServiceAccount:kyverno/kyverno-reports-controller
+
+===== apps/Deployment kyverno/kyverno-admission-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:apps/Deployment:kyverno/kyverno-admission-controller
+
+===== apps/Deployment kyverno/kyverno-background-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:apps/Deployment:kyverno/kyverno-background-controller
+
+===== apps/Deployment kyverno/kyverno-cleanup-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:apps/Deployment:kyverno/kyverno-cleanup-controller
+
+===== apps/Deployment kyverno/kyverno-reports-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:apps/Deployment:kyverno/kyverno-reports-controller
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:admission-controller ======
+12a13
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:admission-controller
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:admission-controller:core ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:admission-controller:core
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:background-controller ======
+12a13
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:background-controller
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:background-controller:core ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:background-controller:core
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:cleanup-controller ======
+12a13
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:cleanup-controller
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:cleanup-controller:core ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:cleanup-controller:core
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:rbac:admin:policies ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:rbac:admin:policies
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:rbac:admin:policyreports ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:rbac:admin:policyreports
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:rbac:admin:reports ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:rbac:admin:reports
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:rbac:admin:updaterequests ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:rbac:admin:updaterequests
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:rbac:view:policies ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:rbac:view:policies
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:rbac:view:policyreports ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:rbac:view:policyreports
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:rbac:view:reports ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:rbac:view:reports
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:rbac:view:updaterequests ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:rbac:view:updaterequests
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:reports-controller ======
+12a13
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:reports-controller
+
+===== rbac.authorization.k8s.io/ClusterRole /kyverno:reports-controller:core ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRole:kyverno/kyverno:reports-controller:core
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /kyverno:admission-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRoleBinding:kyverno/kyverno:admission-controller
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /kyverno:admission-controller:view ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRoleBinding:kyverno/kyverno:admission-controller:view
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /kyverno:background-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRoleBinding:kyverno/kyverno:background-controller
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /kyverno:background-controller:view ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRoleBinding:kyverno/kyverno:background-controller:view
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /kyverno:cleanup-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRoleBinding:kyverno/kyverno:cleanup-controller
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /kyverno:reports-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRoleBinding:kyverno/kyverno:reports-controller
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /kyverno:reports-controller:view ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/ClusterRoleBinding:kyverno/kyverno:reports-controller:view
+
+===== rbac.authorization.k8s.io/Role kyverno/kyverno:admission-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/Role:kyverno/kyverno:admission-controller
+
+===== rbac.authorization.k8s.io/Role kyverno/kyverno:background-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/Role:kyverno/kyverno:background-controller
+
+===== rbac.authorization.k8s.io/Role kyverno/kyverno:cleanup-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/Role:kyverno/kyverno:cleanup-controller
+
+===== rbac.authorization.k8s.io/Role kyverno/kyverno:reports-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/Role:kyverno/kyverno:reports-controller
+
+===== rbac.authorization.k8s.io/RoleBinding kyverno/kyverno:admission-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/RoleBinding:kyverno/kyverno:admission-controller
+
+===== rbac.authorization.k8s.io/RoleBinding kyverno/kyverno:background-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/RoleBinding:kyverno/kyverno:background-controller
+
+===== rbac.authorization.k8s.io/RoleBinding kyverno/kyverno:cleanup-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/RoleBinding:kyverno/kyverno:cleanup-controller
+
+===== rbac.authorization.k8s.io/RoleBinding kyverno/kyverno:reports-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno:rbac.authorization.k8s.io/RoleBinding:kyverno/kyverno:reports-controller

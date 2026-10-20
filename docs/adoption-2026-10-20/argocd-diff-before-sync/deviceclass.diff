@@ -1,0 +1,4 @@
+
+===== resource.k8s.io/DeviceClass /neocloud-h100 ======
+4a5
+>     argocd.argoproj.io/tracking-id: deviceclass:resource.k8s.io/DeviceClass:/neocloud-h100

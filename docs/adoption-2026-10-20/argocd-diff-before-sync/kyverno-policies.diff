@@ -1,0 +1,32 @@
+
+===== kyverno.io/ClusterPolicy /neocloud-domain-pod-pss ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno-policies:kyverno.io/ClusterPolicy:/neocloud-domain-pod-pss
+
+===== policies.kyverno.io/ValidatingPolicy /neocloud-domain ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno-policies:policies.kyverno.io/ValidatingPolicy:/neocloud-domain
+
+===== policies.kyverno.io/ValidatingPolicy /neocloud-domain-secret ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno-policies:policies.kyverno.io/ValidatingPolicy:/neocloud-domain-secret
+
+===== policies.kyverno.io/ValidatingPolicy /neocloud-instance ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno-policies:policies.kyverno.io/ValidatingPolicy:/neocloud-instance
+
+===== policies.kyverno.io/ValidatingPolicy /neocloud-serverless ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno-policies:policies.kyverno.io/ValidatingPolicy:/neocloud-serverless
+
+===== policies.kyverno.io/ValidatingPolicy /neocloud-sku ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno-policies:policies.kyverno.io/ValidatingPolicy:/neocloud-sku
+
+===== policies.kyverno.io/ValidatingPolicy /neocloud-worker-pod ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno-policies:policies.kyverno.io/ValidatingPolicy:/neocloud-worker-pod
+
+===== policies.kyverno.io/ValidatingPolicy /neocloud-worker-resourceclaim ======
+4a5
+>     argocd.argoproj.io/tracking-id: kyverno-policies:policies.kyverno.io/ValidatingPolicy:/neocloud-worker-resourceclaim

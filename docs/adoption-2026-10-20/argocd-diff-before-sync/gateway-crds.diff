@@ -1,0 +1,8 @@
+
+===== admissionregistration.k8s.io/ValidatingAdmissionPolicy /safe-upgrades.gateway.networking.k8s.io ======
+4a5
+>     argocd.argoproj.io/tracking-id: gateway-crds:admissionregistration.k8s.io/ValidatingAdmissionPolicy:envoy-gateway-system/safe-upgrades.gateway.networking.k8s.io
+
+===== admissionregistration.k8s.io/ValidatingAdmissionPolicyBinding /safe-upgrades.gateway.networking.k8s.io ======
+4a5
+>     argocd.argoproj.io/tracking-id: gateway-crds:admissionregistration.k8s.io/ValidatingAdmissionPolicyBinding:envoy-gateway-system/safe-upgrades.gateway.networking.k8s.io

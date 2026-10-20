@@ -1,0 +1,26 @@
+gpu-operator	gpu-feature-discovery	gen=3	obs=3	upd=1/1	RollingUpdate
+gpu-operator	gpu-operator-node-feature-discovery-worker	gen=2	obs=2	upd=4/4	RollingUpdate
+gpu-operator	nvidia-container-toolkit-daemonset	gen=2	obs=2	upd=1/1	RollingUpdate
+gpu-operator	nvidia-dcgm-exporter	gen=3	obs=3	upd=1/1	RollingUpdate
+gpu-operator	nvidia-driver-daemonset-6.8.0-124-generic-ubuntu24.04	gen=3	obs=3	upd=1/1	OnDelete
+gpu-operator	nvidia-operator-validator	gen=2	obs=2	upd=1/1	RollingUpdate
+kube-system	nri-resource-policy-topology-aware	gen=1	obs=1	upd=1/1	RollingUpdate
+nvidia-dra-driver-gpu	dra-driver-nvidia-gpu-kubelet-plugin	gen=1	obs=1	upd=1/1	RollingUpdate
+gpu-operator	gpu-feature-discovery-59d997799	rev=2
+gpu-operator	gpu-feature-discovery-5c5fb66c58	rev=3
+gpu-operator	gpu-feature-discovery-6df7f95785	rev=1
+gpu-operator	gpu-operator-node-feature-discovery-worker-7cf99dfcf8	rev=2
+gpu-operator	gpu-operator-node-feature-discovery-worker-d9584fc57	rev=1
+gpu-operator	nvidia-container-toolkit-daemonset-6966484ff	rev=1
+gpu-operator	nvidia-container-toolkit-daemonset-757bc68b9	rev=2
+gpu-operator	nvidia-dcgm-exporter-6f5d4cd655	rev=1
+gpu-operator	nvidia-dcgm-exporter-79984775d5	rev=3
+gpu-operator	nvidia-dcgm-exporter-c94d99d5d	rev=2
+gpu-operator	nvidia-driver-daemonset-6.8.0-124-generic-ubuntu24.04-59d8fc858f	rev=2
+gpu-operator	nvidia-driver-daemonset-6.8.0-124-generic-ubuntu24.04-5fdddfb7b7	rev=3
+gpu-operator	nvidia-driver-daemonset-6.8.0-124-generic-ubuntu24.04-b57847b6	rev=1
+gpu-operator	nvidia-operator-validator-69d7544968	rev=1
+gpu-operator	nvidia-operator-validator-cddb69df4	rev=2
+kube-system	nri-resource-policy-topology-aware-5cd45df77d	rev=1
+nvidia-dra-driver-gpu	dra-driver-nvidia-gpu-kubelet-plugin-6975b5f575	rev=1
+clusterpolicy gen=4 state=ready

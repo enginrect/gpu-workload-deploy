@@ -1,0 +1,40 @@
+
+===== /ConfigMap envoy-gateway-system/envoy-gateway-config ======
+31a32
+>     argocd.argoproj.io/tracking-id: eg:/ConfigMap:envoy-gateway-system/envoy-gateway-config
+
+===== /Service envoy-gateway-system/envoy-gateway ======
+4a5
+>     argocd.argoproj.io/tracking-id: eg:/Service:envoy-gateway-system/envoy-gateway
+
+===== /ServiceAccount envoy-gateway-system/envoy-gateway ======
+5a6
+>     argocd.argoproj.io/tracking-id: eg:/ServiceAccount:envoy-gateway-system/envoy-gateway
+
+===== apps/Deployment envoy-gateway-system/envoy-gateway ======
+4a5
+>     argocd.argoproj.io/tracking-id: eg:apps/Deployment:envoy-gateway-system/envoy-gateway
+
+===== rbac.authorization.k8s.io/ClusterRole /eg-gateway-helm-envoy-gateway-role ======
+4a5
+>     argocd.argoproj.io/tracking-id: eg:rbac.authorization.k8s.io/ClusterRole:envoy-gateway-system/eg-gateway-helm-envoy-gateway-role
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /eg-gateway-helm-envoy-gateway-rolebinding ======
+4a5
+>     argocd.argoproj.io/tracking-id: eg:rbac.authorization.k8s.io/ClusterRoleBinding:envoy-gateway-system/eg-gateway-helm-envoy-gateway-rolebinding
+
+===== rbac.authorization.k8s.io/Role envoy-gateway-system/eg-gateway-helm-infra-manager ======
+4a5
+>     argocd.argoproj.io/tracking-id: eg:rbac.authorization.k8s.io/Role:envoy-gateway-system/eg-gateway-helm-infra-manager
+
+===== rbac.authorization.k8s.io/Role envoy-gateway-system/eg-gateway-helm-leader-election-role ======
+4a5
+>     argocd.argoproj.io/tracking-id: eg:rbac.authorization.k8s.io/Role:envoy-gateway-system/eg-gateway-helm-leader-election-role
+
+===== rbac.authorization.k8s.io/RoleBinding envoy-gateway-system/eg-gateway-helm-infra-manager ======
+4a5
+>     argocd.argoproj.io/tracking-id: eg:rbac.authorization.k8s.io/RoleBinding:envoy-gateway-system/eg-gateway-helm-infra-manager
+
+===== rbac.authorization.k8s.io/RoleBinding envoy-gateway-system/eg-gateway-helm-leader-election-rolebinding ======
+4a5
+>     argocd.argoproj.io/tracking-id: eg:rbac.authorization.k8s.io/RoleBinding:envoy-gateway-system/eg-gateway-helm-leader-election-rolebinding

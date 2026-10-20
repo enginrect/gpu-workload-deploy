@@ -1,0 +1,12 @@
+
+===== apiextensions.k8s.io/CustomResourceDefinition /computedomains.resource.nvidia.com ======
+72a73
+>                 default: 0
+78c79
+<                   recommended to be set to zero. Workload must implement and consult its
+---
+>                   recommended to be set to zero (default). Workload must implement and consult its
+97a99
+>                 minimum: 0
+101d102
+<             - numNodes

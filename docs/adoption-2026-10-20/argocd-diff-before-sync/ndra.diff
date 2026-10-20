@@ -1,0 +1,76 @@
+
+===== /ServiceAccount nvidia-dra-driver-gpu/compute-domain-daemon-service-account ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:/ServiceAccount:nvidia-dra-driver-gpu/compute-domain-daemon-service-account
+
+===== /ServiceAccount nvidia-dra-driver-gpu/ndra-dra-driver-nvidia-gpu-service-account-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:/ServiceAccount:nvidia-dra-driver-gpu/ndra-dra-driver-nvidia-gpu-service-account-controller
+
+===== /ServiceAccount nvidia-dra-driver-gpu/ndra-dra-driver-nvidia-gpu-service-account-kubeletplugin ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:/ServiceAccount:nvidia-dra-driver-gpu/ndra-dra-driver-nvidia-gpu-service-account-kubeletplugin
+
+===== admissionregistration.k8s.io/ValidatingAdmissionPolicy /resourceslices-policy-dra-driver-nvidia-gpu ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:admissionregistration.k8s.io/ValidatingAdmissionPolicy:nvidia-dra-driver-gpu/resourceslices-policy-dra-driver-nvidia-gpu
+
+===== admissionregistration.k8s.io/ValidatingAdmissionPolicyBinding /resourceslices-policy-dra-driver-nvidia-gpu ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:admissionregistration.k8s.io/ValidatingAdmissionPolicyBinding:nvidia-dra-driver-gpu/resourceslices-policy-dra-driver-nvidia-gpu
+
+===== apps/DaemonSet nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-kubelet-plugin ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:apps/DaemonSet:nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-kubelet-plugin
+
+===== rbac.authorization.k8s.io/ClusterRole /compute-domain-daemon-role ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/ClusterRole:nvidia-dra-driver-gpu/compute-domain-daemon-role
+
+===== rbac.authorization.k8s.io/ClusterRole /dra-driver-nvidia-gpu-clusterrole-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/ClusterRole:nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-clusterrole-controller
+
+===== rbac.authorization.k8s.io/ClusterRole /dra-driver-nvidia-gpu-clusterrole-kubeletplugin ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/ClusterRole:nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-clusterrole-kubeletplugin
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /compute-domain-daemon-role-binding ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/ClusterRoleBinding:nvidia-dra-driver-gpu/compute-domain-daemon-role-binding
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /dra-driver-nvidia-gpu-clusterrole-binding-controller-nvidia-dra-driver-gpu ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/ClusterRoleBinding:nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-clusterrole-binding-controller-nvidia-dra-driver-gpu
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /dra-driver-nvidia-gpu-clusterrole-binding-kubeletplugin ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/ClusterRoleBinding:nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-clusterrole-binding-kubeletplugin
+
+===== rbac.authorization.k8s.io/Role nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-role-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/Role:nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-role-controller
+
+===== rbac.authorization.k8s.io/Role nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-role-kubeletplugin ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/Role:nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-role-kubeletplugin
+
+===== rbac.authorization.k8s.io/RoleBinding nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-role-binding-controller ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/RoleBinding:nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-role-binding-controller
+
+===== rbac.authorization.k8s.io/RoleBinding nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-role-binding-kubeletplugin ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:rbac.authorization.k8s.io/RoleBinding:nvidia-dra-driver-gpu/dra-driver-nvidia-gpu-role-binding-kubeletplugin
+
+===== resource.k8s.io/DeviceClass /gpu.nvidia.com ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:resource.k8s.io/DeviceClass:nvidia-dra-driver-gpu/gpu.nvidia.com
+
+===== resource.k8s.io/DeviceClass /mig.nvidia.com ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:resource.k8s.io/DeviceClass:nvidia-dra-driver-gpu/mig.nvidia.com
+
+===== resource.k8s.io/DeviceClass /vfio.gpu.nvidia.com ======
+4a5
+>     argocd.argoproj.io/tracking-id: ndra:resource.k8s.io/DeviceClass:nvidia-dra-driver-gpu/vfio.gpu.nvidia.com

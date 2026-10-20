@@ -1,0 +1,20 @@
+
+===== /Service external-dns/external-dns ======
+4a5
+>     argocd.argoproj.io/tracking-id: external-dns:/Service:external-dns/external-dns
+
+===== /ServiceAccount external-dns/external-dns ======
+5a6
+>     argocd.argoproj.io/tracking-id: external-dns:/ServiceAccount:external-dns/external-dns
+
+===== apps/Deployment external-dns/external-dns ======
+4a5
+>     argocd.argoproj.io/tracking-id: external-dns:apps/Deployment:external-dns/external-dns
+
+===== rbac.authorization.k8s.io/ClusterRole /external-dns ======
+4a5
+>     argocd.argoproj.io/tracking-id: external-dns:rbac.authorization.k8s.io/ClusterRole:external-dns/external-dns
+
+===== rbac.authorization.k8s.io/ClusterRoleBinding /external-dns-viewer ======
+4a5
+>     argocd.argoproj.io/tracking-id: external-dns:rbac.authorization.k8s.io/ClusterRoleBinding:external-dns/external-dns-viewer
