@@ -168,7 +168,7 @@ sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 - driver DaemonSet(gen 3 · OnDelete · ControllerRevision rev 3) · DRA plugin(gen 1, rev 1) · nri(gen 1) · dcgm(gen 3) · ClusterPolicy(gen 4, ready) 모두 sync 전후 동일: `ds-before-wave4.txt` = `ds-final.txt`.
 - 재시작이 늘어난 3개는 **GitOps 범위 밖이고 Argo가 건드리지 않은** kube-system Pod: kube-vip cp-1(51→53) · cp-3(46→47), cilium-operator(74→75).
   kube-vip ARP manager panic(exit 2)으로 apiserver VIP 10.7.56.210이 흔들려 cilium-operator가 lease 갱신 timeout → leader election lost(exit 255). 첫 kube-vip 재시작은 자식 sync 전(16:20 이전)에 이미 발생 —
-  채택 전에도 7일간 kube-vip 34–51회 · cilium-operator 74회 · kube-scheduler/controller-manager 8–28회 재시작하던 기존 불안정(남은 과제).
+  채택 전에도 7일간 kube-vip 34–51회 · cilium-operator 74회 · kube-scheduler/controller-manager 8–28회 재시작하던 기존 현상(GitOps 대상 아님).
 
 ### 기능 확인 (`functional-after-manual.txt`)
 - `kubectl get clusterpolicies.nvidia.com` → cluster-policy **ready**
@@ -179,9 +179,7 @@ sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 - automated 전환(16:31, root auto-sync, 자식 재sync 없음) 뒤 `platform/deviceclass/04-deviceclass.yaml`에 label `neocloud.io/gitops: argocd` 추가 → push 5초 뒤 automated sync로 반영(rev c0649d6).
 
 ## 남은 과제
-- **Cilium**: helm release `cilium`은 bootstrap 몫으로 제외. GitOps로 옮기려면 bootstrap 값 + `cilium-extra.yaml`을 합친 values로 같은 방식(release 이름 · ns 일치, diff 0 확인) — CNI라 실수 시 전 클러스터 영향, 별도 창에서.
 - **운영용 전용 SA**: Argo CD cluster Secret이 client 인증서(tlsClientConfig, kubeadm admin 계열)로 붙어 있다 → 대상 클러스터에 Argo 전용 SA + 필요한 권한만의 ClusterRole · bearer token으로 교체.
 - **Route53**: external-dns provider 전환(위 블록), 자격 증명은 리포 밖.
 - **wave 강제**: hub argocd-cm에 Application health check 추가(hub Argo CD helm values에서) — 지금은 retry로 흡수.
-- **kube-vip 불안정**: apiserver VIP flap이 leader election 컴포넌트 재시작을 유발(이번 채택과 무관, 위 증빙).
 - hub `argocd-initial-admin-secret` 삭제 상태 — UI/API 로그인 수단(SSO 또는 admin 비밀번호 재설정) 정리.
