@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: presync
+  namespace: karmada-hook-b
+  annotations: {argocd.argoproj.io/hook: PreSync, argocd.argoproj.io/hook-delete-policy: BeforeHookCreation}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      tolerations: [{key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}]
+      containers: [{name: main, image: docker.io/library/busybox:1.37, command: [sh, -c, "echo hook ok"]}]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: after-hook, namespace: karmada-hook-b}
+data: {k: v}
+---
+# PP도 PreSync hook(wave -1)으로: 일반 sync 안에 두면 hook Job보다 늦게 생겨 Job이 전파되지 않음
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: hook
+  namespace: karmada-hook-b
+  annotations: {argocd.argoproj.io/hook: PreSync, argocd.argoproj.io/sync-wave: "-1"}
+spec:
+  resourceSelectors:
+  - {apiVersion: batch/v1, kind: Job, name: presync, namespace: karmada-hook-b}
+  - {apiVersion: v1, kind: ConfigMap, name: after-hook, namespace: karmada-hook-b}
+  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}

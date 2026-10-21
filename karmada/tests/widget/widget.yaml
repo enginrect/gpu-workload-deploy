@@ -1,0 +1,27 @@
+# CRD + CR + CPP를 한 Application에: Argo 적용 순서(CRD 먼저) · Karmada 멤버 전파 순서
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata: {name: widgets.test.neocloud.io}
+spec:
+  group: test.neocloud.io
+  scope: Cluster
+  names: {plural: widgets, singular: widget, kind: Widget}
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema: {openAPIV3Schema: {type: object, properties: {spec: {type: object, properties: {size: {type: integer}}}}}}
+---
+apiVersion: test.neocloud.io/v1
+kind: Widget
+metadata: {name: w1}
+spec: {size: 1}
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: ClusterPropagationPolicy
+metadata: {name: widget}
+spec:
+  resourceSelectors:
+  - {apiVersion: apiextensions.k8s.io/v1, kind: CustomResourceDefinition, name: widgets.test.neocloud.io}
+  - {apiVersion: test.neocloud.io/v1, kind: Widget, name: w1}
+  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}

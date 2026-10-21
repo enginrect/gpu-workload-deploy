@@ -1,0 +1,5 @@
+# managedNamespaceMetadata로 skip-auto-propagation label을 붙인 경우
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: probe, namespace: karmada-nstest-b}
+data: {k: v}

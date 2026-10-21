@@ -1,0 +1,5 @@
+# Argo CreateNamespace=true로 만든 namespace(skip label 없음)가 멤버에 자동 전파되는지
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: probe, namespace: karmada-nstest-a}
+data: {k: v}

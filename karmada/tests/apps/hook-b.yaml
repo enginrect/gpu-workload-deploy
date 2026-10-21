@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karmada-hook-b
+  namespace: argocd
+  annotations: {argocd.argoproj.io/compare-options: ServerSideDiff=true}
+spec:
+  project: karmada-test
+  destination: {name: tech-neo-karmada}
+  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: karmada-argocd-test, path: karmada/tests/hook-b}
+  syncPolicy:
+    automated: {selfHeal: true, prune: true}
+    syncOptions: [ServerSideApply=true, CreateNamespace=true]
+

@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: presync
+  namespace: karmada-hook-a
+  annotations: {argocd.argoproj.io/hook: PreSync, argocd.argoproj.io/hook-delete-policy: BeforeHookCreation}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      tolerations: [{key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule}]
+      containers: [{name: main, image: docker.io/library/busybox:1.37, command: [sh, -c, "echo hook ok"]}]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: after-hook, namespace: karmada-hook-a}
+data: {k: v}

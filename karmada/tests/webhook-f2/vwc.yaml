@@ -1,0 +1,21 @@
+# 보고서 F2: 전파된 WebhookConfiguration의 caBundle을 멤버 쪽 주입기(cainjector)가 채우면 karmada-agent가 template대로 되돌리는지.
+# 절대 호출되지 않도록 namespaceSelector는 존재하지 않는 label, failurePolicy Ignore.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata: {name: f2-dummy}
+webhooks:
+- name: f2.test.neocloud.io
+  admissionReviewVersions: [v1]
+  sideEffects: None
+  failurePolicy: Ignore
+  timeoutSeconds: 1
+  namespaceSelector: {matchLabels: {f2-never: "true"}}
+  rules: [{apiGroups: [""], apiVersions: [v1], operations: [CREATE], resources: [configmaps]}]
+  clientConfig: {service: {namespace: default, name: f2-dummy, port: 443}}
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: ClusterPropagationPolicy
+metadata: {name: f2-dummy}
+spec:
+  resourceSelectors: [{apiVersion: admissionregistration.k8s.io/v1, kind: ValidatingWebhookConfiguration, name: f2-dummy}]
+  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}

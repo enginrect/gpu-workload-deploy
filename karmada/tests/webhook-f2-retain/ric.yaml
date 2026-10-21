@@ -1,0 +1,19 @@
+# F2 해법 후보: retention으로 멤버 caBundle 유지
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: retain-vwc-cabundle}
+spec:
+  target: {apiVersion: admissionregistration.k8s.io/v1, kind: ValidatingWebhookConfiguration}
+  customizations:
+    retention:
+      luaScript: |
+        function Retain(desiredObj, observedObj)
+          if observedObj.webhooks ~= nil and desiredObj.webhooks ~= nil then
+            for i = 1, #observedObj.webhooks do
+              if desiredObj.webhooks[i] ~= nil and observedObj.webhooks[i].clientConfig ~= nil and observedObj.webhooks[i].clientConfig.caBundle ~= nil then
+                desiredObj.webhooks[i].clientConfig.caBundle = observedObj.webhooks[i].clientConfig.caBundle
+              end
+            end
+          end
+          return desiredObj
+        end
