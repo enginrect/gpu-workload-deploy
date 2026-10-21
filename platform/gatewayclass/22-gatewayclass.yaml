@@ -2,5 +2,5 @@
 # 같은 파일의 EnvoyProxy ep-dev · Gateway gw-dev는 project 단위 테스트 오브젝트라 GitOps 대상 아님(운영에서는 telox-worker의 Project reconcile이 생성).
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
-metadata: {name: neocloud}
+metadata: {name: telox}
 spec: {controllerName: gateway.envoyproxy.io/gatewayclass-controller}

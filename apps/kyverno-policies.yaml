@@ -8,7 +8,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "3"
     argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
-  project: neocloud-platform
+  project: telox-platform
   destination:
     name: tech-neo-wkld
   source:

@@ -11,12 +11,12 @@ helm · kubectl로 설치돼 돌던 것을 **재시작 · 중단 없이 채택(a
 
 ```
 bootstrap/                     hub에 손으로 apply (Argo CD가 관리하지 않음)
-  appproject.yaml              AppProject neocloud-platform — 대상 tech-neo-wkld, 모든 ns · cluster-scoped 허용
+  appproject.yaml              AppProject telox-platform — 대상 tech-neo-wkld, 모든 ns · cluster-scoped 허용
   repositories.yaml            docker.io/envoyproxy OCI helm 저장소 선언(enableOCI, 자격 증명 없음)
-  root-app.yaml                root Application neocloud-platform-root → apps/
+  root-app.yaml                root Application telox-platform-root → apps/
 apps/                          자식 Application 14개 (root가 directory source로 읽음)
 platform/
-  neocloud-crds/               00-crds.yaml(Domain · SKU · Instance), 02-serverlessinstance-crd.yaml
+  telox-crds/               00-crds.yaml(Domain · SKU · Instance), 02-serverlessinstance-crd.yaml
   chart-crds/<chart>-<ver>/    helm 차트 crds/ 디렉터리 복사본(gpu-operator · NFD, dra-driver, nri-topo, external-dns)
   system-rbac/                 01-system-rbac.yaml, 10-kyverno-rbac.yaml, 30-dcgm-exporter-dra-rbac.yaml
   kyverno-policies/            11 · 12 · 13 · 14 · 16 · 18 · 19 ValidatingPolicy, 15 ClusterPolicy
@@ -35,17 +35,17 @@ export KUBECONFIG=~/.kube/tech-neo-mgmt.config
 kubectl apply -f bootstrap/          # AppProject + OCI repo 선언 + root Application
 ```
 
-root는 hub 자신(in-cluster `argocd` ns)에 Application을 쓰므로 project `default`, 자식은 project `neocloud-platform`.
+root는 hub 자신(in-cluster `argocd` ns)에 Application을 쓰므로 project `default`, 자식은 project `telox-platform`.
 root · 자식 모두 **finalizer 없음** — Application을 지워도 클러스터 리소스는 남는다(cascade 삭제 방지).
 
 ## Application 목록
 
 | wave | Application | 출처 | 버전 | values / 경로 | ns (release) |
 |---|---|---|---|---|---|
-| 0 | neocloud-crds | 이 리포 | — | platform/neocloud-crds | — |
+| 0 | telox-crds | 이 리포 | — | platform/telox-crds | — |
 | 0 | gateway-crds | oci `docker.io/envoyproxy/gateway-crds-helm` | v1.9.2 | values/gateway-crds.yaml (gatewayAPI standard + envoyGateway) | — |
 | 0 | chart-crds | 이 리포(차트 crds/ 복사본) | 차트 버전별 디렉터리 | platform/chart-crds (recurse) | — |
-| 1 | system-rbac | 이 리포 | — | platform/system-rbac | neocloud-system 등 |
+| 1 | system-rbac | 이 리포 | — | platform/system-rbac | telox-system 등 |
 | 2 | kyverno | https://kyverno.github.io/kyverno `kyverno` | 3.7.1 (v1.17.1) | values/kyverno.yaml | kyverno (kyverno) |
 | 3 | kyverno-policies | 이 리포 | — | platform/kyverno-policies | — |
 | 4 | nri-topo | https://containers.github.io/nri-plugins `nri-resource-policy-topology-aware` | v0.14.0 | values/nri-topo.yaml | kube-system (nri-topo) |
@@ -65,7 +65,7 @@ values는 multi-source(`ref: values` → `$values/platform/values/...`).
 - 비교: `argocd.argoproj.io/compare-options: ServerSideDiff=true` — API server dry-run으로 diff(기본값 · webhook 정규화 차이로 인한 가짜 diff 제거).
 - `syncPolicy.automated: {selfHeal: true, prune: false}` — 채택(수동 sync + diff 검토) 완료 뒤 켬. **prune은 끈 채로 유지**: 리포에서 지운 리소스는 손으로 정리.
 - `ignoreDifferences` 없음 — 채택 시 전 Application이 tracking annotation 외 diff 0이라 필요 없었다.
-- CRD는 helm 차트 crds/에 맡기지 않는다: 차트 Application은 `skipCrds: true`, CRD는 wave 0의 neocloud-crds · gateway-crds · chart-crds.
+- CRD는 helm 차트 crds/에 맡기지 않는다: 차트 Application은 `skipCrds: true`, CRD는 wave 0의 telox-crds · gateway-crds · chart-crds.
   예외: Kyverno CRD는 차트 `templates/`(crds subchart)에 있어 Application kyverno에 남김.
 - sync wave는 root가 자식 Application을 만들 때의 순서. Argo CD 기본 설정에는 Application health check가 없어 root가 자식의 Healthy를 기다리지 않는다
   (처음부터 재설치할 때 순서를 강제하려면 hub argocd-cm에 `resource.customizations.health.argoproj.io_Application` 추가 — 남은 과제).
@@ -130,7 +130,7 @@ gateway-tcproute는 ExternalDNS가 TCPRoute v1을 읽는 릴리스(upstream PR #
 
 | Application | wave | sync 시각(KST) | 소요 | 결과 | Argo diff(sync 전) |
 |---|---|---|---|---|---|
-| neocloud-crds | 0 | 16:21 · 16:22 | 1s ×2 | Synced · Healthy | 0 → sync 뒤 `last-applied-configuration` 제거 diff(아래 ①), 2차 sync |
+| telox-crds | 0 | 16:21 · 16:22 | 1s ×2 | Synced · Healthy | 0 → sync 뒤 `last-applied-configuration` 제거 diff(아래 ①), 2차 sync |
 | gateway-crds | 0 | 16:21 | 2s | Synced · Healthy | tracking annotation만 |
 | chart-crds | 0 | 16:21 | 1s | Synced · Healthy | computedomains CRD 스키마(아래 ②) |
 | system-rbac | 1 | 16:21 | 0s | Synced · Healthy | tracking annotation만 |
@@ -148,7 +148,7 @@ gateway-tcproute는 ExternalDNS가 TCPRoute v1을 읽는 릴리스(upstream PR #
 sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 
 ### diff 0이 아니었던 항목과 처리
-1. **neocloud-crds — `kubectl.kubernetes.io/last-applied-configuration`**: 원래 client-side `kubectl apply`로 설치. 첫 SSA sync에서 Argo CD가 client-side apply 필드 소유권을
+1. **telox-crds — `kubectl.kubernetes.io/last-applied-configuration`**: 원래 client-side `kubectl apply`로 설치. 첫 SSA sync에서 Argo CD가 client-side apply 필드 소유권을
    argocd-controller로 옮긴 뒤 desired에 없는 이 annotation이 diff로 떠 2차 sync로 제거(metadata만). system-rbac 등 다른 kubectl 매니페스트는 SSA로 적용돼 있어 해당 없음.
 2. **chart-crds — `computedomains.resource.nvidia.com`**: 클러스터의 CRD는 ndra 첫 설치(차트 25.12.0) 것 — helm upgrade는 crds/를 갱신하지 않아 0.5.1로 올린 뒤에도 남아 있었다.
    0.5.1 내용(gpu-operator v26.7.2 동봉본과 동일)으로 갱신: `numNodes` default 0 · minimum 0 · required 해제(완화). ComputeDomain 오브젝트 0개 · computeDomains off라 영향 없음.
@@ -176,7 +176,7 @@ sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 - `kubectl -n domain-a get gateway gw-dev` → Programmed True(10.7.56.70)
 - `curl -k --resolve a-80-dev-a.r1.neo.test:443:10.7.56.70 https://a-80-dev-a.r1.neo.test/` → **200**
 - `kubectl --kubeconfig ~/.kube/tech-neo-karmada.config get clusters` → tech-neo-wkld Ready
-- automated 전환(16:31, root auto-sync, 자식 재sync 없음) 뒤 `platform/deviceclass/04-deviceclass.yaml`에 label `neocloud.io/gitops: argocd` 추가 → push 5초 뒤 automated sync로 반영(rev c0649d6).
+- automated 전환(16:31, root auto-sync, 자식 재sync 없음) 뒤 `platform/deviceclass/04-deviceclass.yaml`에 label `telox.io/gitops: argocd` 추가 → push 5초 뒤 automated sync로 반영(rev c0649d6).
 
 ## 남은 과제
 - **운영용 전용 SA**: Argo CD cluster Secret이 client 인증서(tlsClientConfig, kubeadm admin 계열)로 붙어 있다 → 대상 클러스터에 Argo 전용 SA + 필요한 권한만의 ClusterRole · bearer token으로 교체.
@@ -196,12 +196,12 @@ sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 | wave | Application | READY(KST) |
 |---|---|---|
 | 0 | chart-crds · gateway-crds | 19:02:17 |
-| 0 · 1 | neocloud-crds · system-rbac | 19:02:37 |
+| 0 · 1 | telox-crds · system-rbac | 19:02:37 |
 | 2 · 3 · 4 | kyverno · kyverno-policies · nri-topo | 19:04:38 |
 | 4 · 5 | gpu-operator · ndra · deviceclass · cilium-policies | 19:04:58 |
 | 6 | eg · external-dns · gatewayclass · root | 19:05:18 |
 
-- **기능 확인**(`functional-after-fresh.txt`): gpu-operator ClusterPolicy **ready 19:07:04**(Application Healthy보다 2분 뒤 — operand는 ClusterPolicy 뒤에 생기므로 Application health가 driver 준비를 뜻하지 않음), driver · toolkit · dcgm · validator Running, cuda-validator Succeeded, DRA kubelet plugin Running + ResourceSlice gpu-0, DeviceClass 4개(neocloud-h100 포함), nri 1/1 ENABLE_TEST_APIS=1, Kyverno ValidatingPolicy 7개 ready, webhook 11개, GatewayClass Accepted, external-dns Running, Cilium CR 2개, SA 3 · ClusterRole 5, CRD 66, Karmada 멤버 Ready(neocloud API 재수집).
+- **기능 확인**(`functional-after-fresh.txt`): gpu-operator ClusterPolicy **ready 19:07:04**(Application Healthy보다 2분 뒤 — operand는 ClusterPolicy 뒤에 생기므로 Application health가 driver 준비를 뜻하지 않음), driver · toolkit · dcgm · validator Running, cuda-validator Succeeded, DRA kubelet plugin Running + ResourceSlice gpu-0, DeviceClass 4개(telox-h100 포함), nri 1/1 ENABLE_TEST_APIS=1, Kyverno ValidatingPolicy 7개 ready, webhook 11개, GatewayClass Accepted, external-dns Running, Cilium CR 2개, SA 3 · ClusterRole 5, CRD 66, Karmada 멤버 Ready(telox API 재수집).
 - **결론**: 리포만으로 플랫폼 전체가 재현된다. Domain · SKU · Instance는 GitOps 밖이므로 지금 클러스터에는 없다(Karmada 또는 telox-manager 경로로 생성).
 
 ### 순서 보강 (2026-10-20, 진짜 배포 뒤)

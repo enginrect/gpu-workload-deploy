@@ -6,7 +6,7 @@ metadata: {name: instance-egress}
 spec:
   endpointSelector:
     matchExpressions:
-    - {key: neocloud.io/instance, operator: Exists}
+    - {key: telox.io/instance, operator: Exists}
   egressDeny:
   - toEntities: [cluster, host, remote-node, kube-apiserver]
   - toCIDR: ["169.254.0.0/16", "10.7.0.0/16"]

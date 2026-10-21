@@ -1,7 +1,7 @@
 # Resource §4 — PSS restricted를 Kyverno가 적용, 컨테이너 root · runtime 기본 capability만 제외 (PSA namespace label은 baseline)
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
-metadata: {name: neocloud-domain-pod-pss}
+metadata: {name: telox-domain-pod-pss}
 spec:
   validationFailureAction: Enforce
   background: false
@@ -12,7 +12,7 @@ spec:
       - resources:
           kinds: [Pod]
           namespaceSelector:
-            matchExpressions: [{key: neocloud.io/domain, operator: Exists}]
+            matchExpressions: [{key: telox.io/domain, operator: Exists}]
     validate:
       podSecurity:
         level: restricted
