@@ -4,7 +4,7 @@
 **tech-neo-wkld**(Argo CD cluster `tech-neo-wkld`, `https://10.7.56.210:6443`)의 플랫폼 구성 요소 전부를 관리한다.
 helm · kubectl로 설치돼 돌던 것을 **재시작 · 중단 없이 채택(adopt)** 했다(2026-10-20, 결과는 [채택 결과](#채택-결과-2026-10-20)).
 
-원본: `~/Documents/work/cursor-workspace/neocloud-tech-wkld-manifests-2026-10-13`(git 아님)의 `manifests/` · `values/`를 복사 — 설계 번호 · 주석 유지.
+원본: `~/Documents/work/cursor-workspace/telox-tech-wkld-manifests-2026-10-13`(git 아님)의 `manifests/` · `values/`를 복사 — 설계 번호 · 주석 유지.
 이 리포는 **public** — 비밀번호 · 토큰 · 인증서 · 개인키 · kubeconfig · SSH 공개키를 커밋하지 않는다(사설 IP 10.7.x는 테스트라 허용).
 
 ## 디렉터리 구조
