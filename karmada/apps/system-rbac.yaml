@@ -1,0 +1,15 @@
+# wave 1 — ns telox-system · SA · ClusterRole/Binding · Kyverno aggregated ClusterRole → 모든 wkld 멤버
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karmada-system-rbac
+  namespace: argocd
+  annotations: {argocd.argoproj.io/compare-options: ServerSideDiff=true, argocd.argoproj.io/sync-wave: "1"}
+spec:
+  project: karmada-test
+  destination: {name: tech-neo-karmada}
+  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: karmada-argocd-test, path: karmada/system-rbac}
+  syncPolicy:
+    automated: {selfHeal: true, prune: true}
+    syncOptions: [ServerSideApply=true]
+    retry: {limit: 5, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}

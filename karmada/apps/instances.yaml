@@ -3,7 +3,7 @@ kind: Application
 metadata:
   name: karmada-instances
   namespace: argocd
-  annotations: {argocd.argoproj.io/compare-options: ServerSideDiff=true, argocd.argoproj.io/sync-wave: "3"}
+  annotations: {argocd.argoproj.io/compare-options: ServerSideDiff=true, argocd.argoproj.io/sync-wave: "5"}
 spec:
   project: karmada-test
   destination: {name: tech-neo-karmada}

@@ -1,3 +1,4 @@
+# wave 0 — telox CRD 4종(karmada-apiserver 저장 + cpp.yaml로 모든 wkld 멤버 전파)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -7,7 +8,7 @@ metadata:
 spec:
   project: karmada-test
   destination: {name: tech-neo-karmada}
-  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: karmada-argocd-test, path: platform/telox-crds}
+  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: karmada-argocd-test, path: karmada/telox-crds}
   syncPolicy:
     automated: {selfHeal: true, prune: true}
     syncOptions: [ServerSideApply=true]

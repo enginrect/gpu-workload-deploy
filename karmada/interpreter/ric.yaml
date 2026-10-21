@@ -1,0 +1,150 @@
+# Karmada 3단계: telox CR의 멤버 status를 template로 올리고(statusAggregation) health를 해석(healthInterpretation).
+# Domain · Instance는 클러스터 하나에만 있으므로 집계 = 그 멤버 status 복사.
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: telox-domain}
+spec:
+  target: {apiVersion: telox.io/v1alpha1, kind: Domain}
+  customizations:
+    statusAggregation:
+      luaScript: |
+        function AggregateStatus(desiredObj, statusItems)
+          if statusItems == nil then return desiredObj end
+          for i = 1, #statusItems do
+            if statusItems[i].status ~= nil then desiredObj.status = statusItems[i].status end
+          end
+          return desiredObj
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          if observedObj.status == nil or observedObj.status.conditions == nil then return false end
+          for i = 1, #observedObj.status.conditions do
+            local c = observedObj.status.conditions[i]
+            if c.type == 'Ready' and c.status == 'True' then return true end
+          end
+          return false
+        end
+---
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: telox-instance}
+spec:
+  target: {apiVersion: telox.io/v1alpha1, kind: Instance}
+  customizations:
+    statusAggregation:
+      luaScript: |
+        function AggregateStatus(desiredObj, statusItems)
+          if statusItems == nil then return desiredObj end
+          for i = 1, #statusItems do
+            if statusItems[i].status ~= nil then desiredObj.status = statusItems[i].status end
+          end
+          return desiredObj
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          return observedObj.status ~= nil and observedObj.status.phase == 'Running'
+        end
+---
+# ServerlessInstance — 클러스터 하나에만 있으므로 집계 = 그 멤버 status 복사. health = phase Ready 또는 Idle(worker 0)
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: telox-serverlessinstance}
+spec:
+  target: {apiVersion: telox.io/v1alpha1, kind: ServerlessInstance}
+  customizations:
+    statusAggregation:
+      luaScript: |
+        function AggregateStatus(desiredObj, statusItems)
+          if statusItems == nil then return desiredObj end
+          for i = 1, #statusItems do
+            if statusItems[i].status ~= nil then desiredObj.status = statusItems[i].status end
+          end
+          return desiredObj
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          if observedObj.status == nil or observedObj.status.phase == nil then return false end
+          return observedObj.status.phase == 'Ready' or observedObj.status.phase == 'Idle'
+        end
+---
+# Kyverno ClusterPolicy — 모든 wkld 멤버에 전파되므로 집계 = 멤버 전부 ready일 때만 ready(Karmada 내장 kyverno.io 해석은 마지막 멤버 값만 봄 → 이 RIC가 우선).
+# autogen · rulecount는 올리지 않음(용량만 큼). condition message에 클러스터 이름 접두.
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: telox-kyverno-clusterpolicy}
+spec:
+  target: {apiVersion: kyverno.io/v1, kind: ClusterPolicy}
+  customizations:
+    statusAggregation:
+      luaScript: |
+        function AggregateStatus(desiredObj, statusItems)
+          if statusItems == nil then return desiredObj end
+          local ready, reported, conditions = true, 0, {}
+          for i = 1, #statusItems do
+            local s = statusItems[i].status
+            if s ~= nil and s.ready ~= nil then
+              reported = reported + 1
+              if s.ready ~= true then ready = false end
+              if s.conditions ~= nil then
+                for j = 1, #s.conditions do
+                  local c = s.conditions[j]
+                  c.message = statusItems[i].clusterName .. '=' .. (c.message or '')
+                  conditions[#conditions + 1] = c
+                end
+              end
+            else
+              ready = false
+            end
+          end
+          if reported == 0 then return desiredObj end
+          desiredObj.status = {ready = ready}
+          if #conditions > 0 then desiredObj.status.conditions = conditions end
+          return desiredObj
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          return observedObj.status ~= nil and observedObj.status.ready == true
+        end
+---
+# Kyverno ValidatingPolicy(policies.kyverno.io) — Karmada 내장 해석 없음. 집계 = 멤버 전부 conditionStatus.ready일 때만 ready
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: telox-kyverno-validatingpolicy}
+spec:
+  target: {apiVersion: policies.kyverno.io/v1, kind: ValidatingPolicy}
+  customizations:
+    statusAggregation:
+      luaScript: |
+        function AggregateStatus(desiredObj, statusItems)
+          if statusItems == nil then return desiredObj end
+          local ready, reported, conditions = true, 0, {}
+          for i = 1, #statusItems do
+            local s = statusItems[i].status
+            if s ~= nil and s.conditionStatus ~= nil and s.conditionStatus.ready ~= nil then
+              reported = reported + 1
+              if s.conditionStatus.ready ~= true then ready = false end
+              if s.conditionStatus.conditions ~= nil then
+                for j = 1, #s.conditionStatus.conditions do
+                  local c = s.conditionStatus.conditions[j]
+                  c.message = statusItems[i].clusterName .. '=' .. (c.message or '')
+                  conditions[#conditions + 1] = c
+                end
+              end
+            else
+              ready = false
+            end
+          end
+          if reported == 0 then return desiredObj end
+          desiredObj.status = {conditionStatus = {ready = ready}}
+          if #conditions > 0 then desiredObj.status.conditionStatus.conditions = conditions end
+          return desiredObj
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          return observedObj.status ~= nil and observedObj.status.conditionStatus ~= nil and observedObj.status.conditionStatus.ready == true
+        end

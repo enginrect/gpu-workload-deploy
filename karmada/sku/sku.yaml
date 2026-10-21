@@ -1,3 +1,4 @@
+# SKU는 label telox.io/role=wkld인 모든 멤버(모든 region)에 전파. GPU 모델별 SKU는 그 모델이 있는 클러스터 label(예: telox.io/gpu=h100)로 좁힘.
 apiVersion: telox.io/v1alpha1
 kind: SKU
 metadata: {name: cpu-4-8g}
@@ -8,4 +9,6 @@ kind: ClusterPropagationPolicy
 metadata: {name: sku-cpu-4-8g}
 spec:
   resourceSelectors: [{apiVersion: telox.io/v1alpha1, kind: SKU, name: cpu-4-8g}]
-  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}
+  placement:
+    clusterAffinity:
+      labelSelector: {matchLabels: {telox.io/role: wkld}}

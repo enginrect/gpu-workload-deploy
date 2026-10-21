@@ -1,4 +1,5 @@
-# Domain c → tech-neo-wkld 하나에만. namespace는 skip label이 없으면 모든 멤버에 자동 생성되므로 label 필수.
+# Domain c → 클러스터 하나(tech-neo-wkld)에만 — domain은 region 안 클러스터 하나에만 존재. 어느 클러스터인지는 telox-manager가 onboarding 때 정해 clusterNames로 고정(region은 Cluster spec.region · label telox.io/region으로 선택 입력).
+# namespace는 skip label이 없으면 모든 멤버에 자동 생성되므로 label 필수.
 apiVersion: v1
 kind: Namespace
 metadata:

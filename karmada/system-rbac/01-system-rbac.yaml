@@ -3,7 +3,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: telox-system
-  labels: {telox.io/role: gateway}   # ServerlessInstance worker의 NetworkPolicy가 이 label의 namespace에서만 ingress 허용(telox-gateway 위치)
+  labels:
+    telox.io/role: gateway   # ServerlessInstance worker의 NetworkPolicy가 이 label의 namespace에서만 ingress 허용(telox-gateway 위치)
+    namespace.karmada.io/skip-auto-propagation: "true"   # karmada-apiserver의 namespace 자동 전파(모든 멤버) 대신 cpp.yaml의 선택으로만 전파
 ---
 apiVersion: v1
 kind: ServiceAccount

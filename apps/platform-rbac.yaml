@@ -1,11 +1,11 @@
-# wave 3 — Kyverno ValidatingPolicy 7(11 · 12 · 13 · 14 · 16 · 18 · 19) + ClusterPolicy 1(15). Kyverno CRD · 컨트롤러(wave 2) 뒤
+# wave 1 — 플랫폼 구성 요소용 RBAC(dcgm-exporter DRA 읽기). telox SA · RBAC · ns telox-system은 Karmada 경로(karmada/system-rbac)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kyverno-policies
+  name: platform-rbac
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "1"
     argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
   project: telox-platform
@@ -14,9 +14,8 @@ spec:
   source:
     repoURL: https://github.com/enginrect/gpu-workload-deploy.git
     targetRevision: main
-    path: platform/kyverno-policies
+    path: platform/rbac
   syncPolicy:
-    # 2026-10-20 채택 완료(전 Application zero-diff · 재시작 0 확인) 뒤 수동 → automated. prune은 계속 false(리포에서 지운 리소스는 손으로 정리).
     automated:
       selfHeal: true
       prune: false
