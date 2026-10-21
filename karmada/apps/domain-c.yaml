@@ -3,7 +3,7 @@ kind: Application
 metadata:
   name: karmada-domain-c
   namespace: argocd
-  annotations: {argocd.argoproj.io/sync-wave: "2"}
+  annotations: {argocd.argoproj.io/compare-options: ServerSideDiff=true, argocd.argoproj.io/sync-wave: "2"}
 spec:
   project: karmada-test
   destination: {name: tech-neo-karmada}
