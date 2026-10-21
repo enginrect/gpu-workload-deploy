@@ -19,12 +19,3 @@ spec:
   - {name: PGID, value: "1000"}
   - {name: TZ, value: Asia/Seoul}
   ports: [{name: ssh, port: 2222, protocol: TCP}]   # protocol은 CRD default — 생략하면 OutOfSync
----
-# k2: Domain c allowedSkus에 없는 sku → 멤버 Kyverno(neocloud-instance)가 거부해야 함. Argo CD · Karmada가 이 거부를 어떻게 보이는지 확인용.
-apiVersion: neocloud.io/v1alpha1
-kind: Instance
-metadata: {name: k2, namespace: domain-c, labels: {neocloud.io/project: dev}}
-spec:
-  sku: h100-1
-  image: docker.io/linuxserver/openssh-server:latest
-  ports: [{name: ssh, port: 2222, protocol: TCP}]   # protocol은 CRD default — 생략하면 OutOfSync
