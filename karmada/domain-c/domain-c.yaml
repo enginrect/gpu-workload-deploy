@@ -4,11 +4,11 @@ kind: Namespace
 metadata:
   name: domain-c
   labels:
-    neocloud.io/domain: c
+    telox.io/domain: c
     pod-security.kubernetes.io/enforce: baseline
     namespace.karmada.io/skip-auto-propagation: "true"
 ---
-apiVersion: neocloud.io/v1alpha1
+apiVersion: telox.io/v1alpha1
 kind: Domain
 metadata: {name: c}
 spec:
@@ -24,5 +24,5 @@ metadata: {name: domain-c}
 spec:
   resourceSelectors:
   - {apiVersion: v1, kind: Namespace, name: domain-c}
-  - {apiVersion: neocloud.io/v1alpha1, kind: Domain, name: c}
+  - {apiVersion: telox.io/v1alpha1, kind: Domain, name: c}
   placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}

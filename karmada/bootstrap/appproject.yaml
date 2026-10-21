@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata: {name: karmada-test, namespace: argocd}
 spec:
-  description: neocloud CRs through karmada-apiserver (test)
+  description: telox CRs through karmada-apiserver (test)
   sourceRepos: [https://github.com/enginrect/gpu-workload-deploy.git]
   destinations:
   - {name: tech-neo-karmada, namespace: '*'}

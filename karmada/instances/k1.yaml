@@ -3,12 +3,12 @@ apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
 metadata: {name: instances, namespace: domain-c}
 spec:
-  resourceSelectors: [{apiVersion: neocloud.io/v1alpha1, kind: Instance, namespace: domain-c}]   # namespace는 Karmada webhook default — 생략하면 Argo SSA diff가 OutOfSync
+  resourceSelectors: [{apiVersion: telox.io/v1alpha1, kind: Instance, namespace: domain-c}]   # namespace는 Karmada webhook default — 생략하면 Argo SSA diff가 OutOfSync
   placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}
 ---
-apiVersion: neocloud.io/v1alpha1
+apiVersion: telox.io/v1alpha1
 kind: Instance
-metadata: {name: k1, namespace: domain-c, labels: {neocloud.io/project: dev}}
+metadata: {name: k1, namespace: domain-c, labels: {telox.io/project: dev}}
 spec:
   sku: cpu-4-8g
   image: docker.io/linuxserver/openssh-server:latest
