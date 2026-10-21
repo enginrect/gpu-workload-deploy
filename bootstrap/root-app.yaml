@@ -1,11 +1,11 @@
 # app-of-apps root — hub(tech-neo-mgmt) argocd ns에 손으로 apply:
 #   KUBECONFIG=~/.kube/tech-neo-mgmt.config kubectl apply -f bootstrap/
-# apps/ 디렉터리(자식 Application)를 hub 자신(in-cluster argocd ns)에 만든다. 자식은 project neocloud-platform → tech-neo-wkld.
+# apps/ 디렉터리(자식 Application)를 hub 자신(in-cluster argocd ns)에 만든다. 자식은 project telox-platform → tech-neo-wkld.
 # root는 hub에 쓰므로 project default. finalizer 없음 — root를 지워도 자식 Application · 워크로드는 남는다.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: neocloud-platform-root
+  name: telox-platform-root
   namespace: argocd
 spec:
   project: default

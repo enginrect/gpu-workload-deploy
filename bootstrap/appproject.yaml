@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: neocloud-platform
+  name: telox-platform
   namespace: argocd
 spec:
   description: tech-neo-wkld platform components (GitOps adoption of helm/kubectl installs)

@@ -1,14 +1,14 @@
 # Placement §3 validate — SKU 오브젝트(telox-manager 운영 identity의 상한)
 apiVersion: policies.kyverno.io/v1
 kind: ValidatingPolicy
-metadata: {name: neocloud-sku}
+metadata: {name: telox-sku}
 spec:
   validationActions: [Deny]
   evaluation:
     background: {enabled: false}
   matchConstraints:
     resourceRules:
-    - apiGroups: [neocloud.io]
+    - apiGroups: [telox.io]
       apiVersions: [v1alpha1]
       operations: [CREATE, UPDATE]
       resources: [skus]

@@ -1,36 +1,36 @@
-# Placement §3 validate — Instance CR spec (고객 identity가 만드는 오브젝트). domain = namespace(label neocloud.io/domain = Domain CR 이름) — 계약 값은 Domain CR spec에서 읽음, project = label neocloud.io/project ∈ identity extra neocloud.io/projects
+# Placement §3 validate — Instance CR spec (고객 identity가 만드는 오브젝트). domain = namespace(label telox.io/domain = Domain CR 이름) — 계약 값은 Domain CR spec에서 읽음, project = label telox.io/project ∈ identity extra telox.io/projects
 apiVersion: policies.kyverno.io/v1
 kind: ValidatingPolicy
-metadata: {name: neocloud-instance}
+metadata: {name: telox-instance}
 spec:
   validationActions: [Deny]
   evaluation:
     background: {enabled: false}
   matchConstraints:
     namespaceSelector:
-      matchExpressions: [{key: neocloud.io/domain, operator: Exists}]
+      matchExpressions: [{key: telox.io/domain, operator: Exists}]
     resourceRules:
-    - apiGroups: [neocloud.io]
+    - apiGroups: [telox.io]
       apiVersions: [v1alpha1]
       operations: [CREATE, UPDATE]
       resources: [instances]
   variables:
   - name: domainId
-    expression: "namespaceObject.metadata.labels['neocloud.io/domain']"
+    expression: "namespaceObject.metadata.labels['telox.io/domain']"
   - name: domain
-    expression: "dyn(resource.List('neocloud.io/v1alpha1', 'domains', '')).items.filter(d, d.metadata.name == variables.domainId)"
+    expression: "dyn(resource.List('telox.io/v1alpha1', 'domains', '')).items.filter(d, d.metadata.name == variables.domainId)"
   - name: labels
     expression: "has(object.metadata.labels) ? object.metadata.labels : {}"
   - name: project
-    expression: "'neocloud.io/project' in variables.labels ? variables.labels['neocloud.io/project'] : ''"
+    expression: "'telox.io/project' in variables.labels ? variables.labels['telox.io/project'] : ''"
   - name: customer
     expression: "request.userInfo.groups.exists(g, g.startsWith('domain-'))"
   - name: identityProjects
-    expression: "has(request.userInfo.extra) && 'neocloud.io/projects' in request.userInfo.extra ? request.userInfo.extra['neocloud.io/projects'] : []"
+    expression: "has(request.userInfo.extra) && 'telox.io/projects' in request.userInfo.extra ? request.userInfo.extra['telox.io/projects'] : []"
   - name: allowed
     expression: "size(variables.domain) == 1 ? variables.domain[0].spec.allowedSkus : []"
   - name: skus
-    expression: "dyn(resource.List('neocloud.io/v1alpha1', 'skus', '')).items"
+    expression: "dyn(resource.List('telox.io/v1alpha1', 'skus', '')).items"
   - name: sku
     expression: "variables.skus.filter(s, s.metadata.name == object.spec.sku)"
   - name: pool
@@ -38,7 +38,7 @@ spec:
   - name: maxGpus
     expression: "size(variables.domain) == 1 && variables.pool in variables.domain[0].spec.maxGpus ? int(variables.domain[0].spec.maxGpus[variables.pool]) : 0"
   - name: others
-    expression: "dyn(resource.List('neocloud.io/v1alpha1', 'instances', object.metadata.namespace)).items.filter(i, i.metadata.name != object.metadata.name)"
+    expression: "dyn(resource.List('telox.io/v1alpha1', 'instances', object.metadata.namespace)).items.filter(i, i.metadata.name != object.metadata.name)"
   - name: usedList
     expression: "variables.others.map(i, variables.skus.filter(s, s.metadata.name == i.spec.sku && s.spec.pool == variables.pool)).filter(l, size(l) == 1).map(l, int(l[0].spec.gpuCount))"
   - name: usedGpus
@@ -63,11 +63,11 @@ spec:
   - expression: "size(variables.domain) == 1"
     messageExpression: "'Domain object ' + variables.domainId + ' not found'"
   - expression: "variables.project != ''"
-    message: "label neocloud.io/project is required"
+    message: "label telox.io/project is required"
   - expression: "!variables.customer || variables.project in variables.identityProjects"
-    messageExpression: "'project ' + variables.project + ' is not in the identity extra neocloud.io/projects'"
-  - expression: "request.operation == 'CREATE' || (has(oldObject.metadata.labels) && 'neocloud.io/project' in oldObject.metadata.labels && oldObject.metadata.labels['neocloud.io/project'] == variables.project)"
-    message: "label neocloud.io/project is immutable"
+    messageExpression: "'project ' + variables.project + ' is not in the identity extra telox.io/projects'"
+  - expression: "request.operation == 'CREATE' || (has(oldObject.metadata.labels) && 'telox.io/project' in oldObject.metadata.labels && oldObject.metadata.labels['telox.io/project'] == variables.project)"
+    message: "label telox.io/project is immutable"
   - expression: "object.spec.sku in variables.allowed"
     messageExpression: "'sku ' + object.spec.sku + ' is not in Domain ' + variables.domainId + ' allowedSkus (' + variables.allowed.join(',') + ')'"
   - expression: "size(variables.sku) == 1"
@@ -78,7 +78,7 @@ spec:
     messageExpression: "'storage quota exceeded: used ' + string(variables.usedStorageGi) + 'Gi + requested ' + string(variables.reqStorageGi) + 'Gi > Domain maxStorage ' + string(variables.maxStorageGi) + 'Gi'"
   - expression: "variables.registry in variables.publicRegistries || has(object.spec.imagePullSecret)"
     messageExpression: "'image registry ' + variables.registry + ' is not a public registry and no imagePullSecret given'"
-  - expression: "!has(object.spec.imagePullSecret) || (size(variables.pullSecrets) == 1 && variables.pullSecrets[0].type == 'kubernetes.io/dockerconfigjson' && has(variables.pullSecrets[0].metadata.labels) && 'neocloud.io/project' in variables.pullSecrets[0].metadata.labels && variables.pullSecrets[0].metadata.labels['neocloud.io/project'] == variables.project)"
-    message: "imagePullSecret must exist in the namespace, be kubernetes.io/dockerconfigjson and carry the same neocloud.io/project label"
+  - expression: "!has(object.spec.imagePullSecret) || (size(variables.pullSecrets) == 1 && variables.pullSecrets[0].type == 'kubernetes.io/dockerconfigjson' && has(variables.pullSecrets[0].metadata.labels) && 'telox.io/project' in variables.pullSecrets[0].metadata.labels && variables.pullSecrets[0].metadata.labels['telox.io/project'] == variables.project)"
+    message: "imagePullSecret must exist in the namespace, be kubernetes.io/dockerconfigjson and carry the same telox.io/project label"
   - expression: "!has(object.spec.env) || !object.spec.env.exists(e, e.name in ['NVIDIA_VISIBLE_DEVICES', 'NVIDIA_DRIVER_CAPABILITIES', 'NVIDIA_MIG_CONFIG_DEVICES'])"
     message: "env NVIDIA_VISIBLE_DEVICES / NVIDIA_DRIVER_CAPABILITIES / NVIDIA_MIG_CONFIG_DEVICES is not allowed"

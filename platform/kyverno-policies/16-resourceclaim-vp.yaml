@@ -1,14 +1,14 @@
 # Placement §3 validate — telox-worker SA가 만드는 ResourceClaim
 apiVersion: policies.kyverno.io/v1
 kind: ValidatingPolicy
-metadata: {name: neocloud-worker-resourceclaim}
+metadata: {name: telox-worker-resourceclaim}
 spec:
   validationActions: [Deny]
   evaluation:
     background: {enabled: false}
   matchConstraints:
     namespaceSelector:
-      matchExpressions: [{key: neocloud.io/domain, operator: Exists}]
+      matchExpressions: [{key: telox.io/domain, operator: Exists}]
     resourceRules:
     - apiGroups: [resource.k8s.io]
       apiVersions: [v1]
@@ -16,15 +16,15 @@ spec:
       resources: [resourceclaims]
   variables:
   - name: owners
-    expression: "has(object.metadata.ownerReferences) ? object.metadata.ownerReferences.filter(o, (o.kind == 'Instance' || o.kind == 'ServerlessInstance') && o.apiVersion == 'neocloud.io/v1alpha1') : []"
+    expression: "has(object.metadata.ownerReferences) ? object.metadata.ownerReferences.filter(o, (o.kind == 'Instance' || o.kind == 'ServerlessInstance') && o.apiVersion == 'telox.io/v1alpha1') : []"
   - name: instances
-    expression: "dyn(resource.List('neocloud.io/v1alpha1', 'instances', object.metadata.namespace)).items"
+    expression: "dyn(resource.List('telox.io/v1alpha1', 'instances', object.metadata.namespace)).items"
   - name: serverless
-    expression: "dyn(resource.List('neocloud.io/v1alpha1', 'serverlessinstances', object.metadata.namespace)).items"
+    expression: "dyn(resource.List('telox.io/v1alpha1', 'serverlessinstances', object.metadata.namespace)).items"
   validations:
-  - expression: "request.userInfo.username == 'system:serviceaccount:neocloud-system:telox-worker'"
+  - expression: "request.userInfo.username == 'system:serviceaccount:telox-system:telox-worker'"
     message: "resourceclaims in domain namespaces are created only by telox-worker"
   - expression: "size(variables.owners) == 1 && (variables.owners[0].kind == 'Instance' ? variables.instances : variables.serverless).exists(i, i.metadata.name == variables.owners[0].name)"
     message: "resourceclaim must have an ownerReference to an existing Instance or ServerlessInstance"
-  - expression: "object.spec.devices.requests.all(r, has(r.exactly) && r.exactly.deviceClassName.startsWith('neocloud-'))"
-    message: "deviceClassName must be neocloud-*"
+  - expression: "object.spec.devices.requests.all(r, has(r.exactly) && r.exactly.deviceClassName.startsWith('telox-'))"
+    message: "deviceClassName must be telox-*"
