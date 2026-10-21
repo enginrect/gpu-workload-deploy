@@ -70,7 +70,7 @@ spec:
           return observedObj.status.phase == 'Ready' or observedObj.status.phase == 'Idle'
         end
 ---
-# Kyverno ClusterPolicy — 모든 wkld 멤버에 전파되므로 집계 = 멤버 전부 ready일 때만 ready(Karmada 내장 kyverno.io 해석은 마지막 멤버 값만 봄 → 이 RIC가 우선).
+# Kyverno ClusterPolicy — 모든 wkld 멤버에 전파되므로 집계 = 멤버 전부 Ready일 때만 ready(Karmada 내장 kyverno.io 해석은 마지막 멤버 값만 보고, 집계는 status.ready 필드만 봄 → 이 RIC가 우선).
 # autogen · rulecount는 올리지 않음(용량만 큼). condition message에 클러스터 이름 접두.
 apiVersion: config.karmada.io/v1alpha1
 kind: ResourceInterpreterCustomization
@@ -85,9 +85,20 @@ spec:
           local ready, reported, conditions = true, 0, {}
           for i = 1, #statusItems do
             local s = statusItems[i].status
-            if s ~= nil and s.ready ~= nil then
+            -- Kyverno 1.17: status.ready 없음, conditions[type=Ready] 로 판단(ready 필드는 옛 버전)
+            local r = nil
+            if s ~= nil then
+              if s.ready ~= nil then r = (s.ready == true) end
+              if s.conditions ~= nil then
+                for j = 1, #s.conditions do
+                  local c = s.conditions[j]
+                  if c.type == 'Ready' then r = (c.status == 'True') end
+                end
+              end
+            end
+            if r ~= nil then
               reported = reported + 1
-              if s.ready ~= true then ready = false end
+              if r ~= true then ready = false end
               if s.conditions ~= nil then
                 for j = 1, #s.conditions do
                   local c = s.conditions[j]
@@ -107,7 +118,15 @@ spec:
     healthInterpretation:
       luaScript: |
         function InterpretHealth(observedObj)
-          return observedObj.status ~= nil and observedObj.status.ready == true
+          if observedObj.status == nil then return false end
+          if observedObj.status.ready ~= nil then return observedObj.status.ready == true end
+          if observedObj.status.conditions ~= nil then
+            for i = 1, #observedObj.status.conditions do
+              local c = observedObj.status.conditions[i]
+              if c.type == 'Ready' then return c.status == 'True' end
+            end
+          end
+          return false
         end
 ---
 # Kyverno ValidatingPolicy(policies.kyverno.io) — Karmada 내장 해석 없음. 집계 = 멤버 전부 conditionStatus.ready일 때만 ready
