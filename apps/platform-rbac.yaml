@@ -13,7 +13,7 @@ spec:
     name: tech-neo-wkld
   source:
     repoURL: https://github.com/enginrect/gpu-workload-deploy.git
-    targetRevision: main
+    targetRevision: karmada-argocd-test   # 테스트 브랜치 한정 — main 머지 때 main으로(platform/rbac이 main에 없음)
     path: platform/rbac
   syncPolicy:
     automated:
