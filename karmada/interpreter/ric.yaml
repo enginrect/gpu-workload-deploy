@@ -167,3 +167,119 @@ spec:
         function InterpretHealth(observedObj)
           return observedObj.status ~= nil and observedObj.status.conditionStatus ~= nil and observedObj.status.conditionStatus.ready == true
         end
+---
+# Gateway API — domain Gateway와 route는 domain과 같은 클러스터 하나에만 있으므로 집계 = 그 멤버 status 복사.
+# Argo CD 내장 health(Gateway · HTTPRoute)가 status를 요구하므로 집계가 없으면 App이 영구 Progressing.
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: telox-gateway}
+spec:
+  target: {apiVersion: gateway.networking.k8s.io/v1, kind: Gateway}
+  customizations:
+    statusAggregation:
+      luaScript: |
+        function AggregateStatus(desiredObj, statusItems)
+          if statusItems == nil then return desiredObj end
+          for i = 1, #statusItems do
+            if statusItems[i].status ~= nil then desiredObj.status = statusItems[i].status end
+          end
+          return desiredObj
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          if observedObj.status == nil or observedObj.status.conditions == nil then return false end
+          for i = 1, #observedObj.status.conditions do
+            local c = observedObj.status.conditions[i]
+            if c.type == 'Programmed' then return c.status == 'True' end
+          end
+          return false
+        end
+---
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: telox-httproute}
+spec:
+  target: {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute}
+  customizations:
+    statusAggregation:
+      luaScript: |
+        function AggregateStatus(desiredObj, statusItems)
+          if statusItems == nil then return desiredObj end
+          for i = 1, #statusItems do
+            if statusItems[i].status ~= nil then desiredObj.status = statusItems[i].status end
+          end
+          return desiredObj
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          if observedObj.status == nil or observedObj.status.parents == nil or #observedObj.status.parents == 0 then return false end
+          for i = 1, #observedObj.status.parents do
+            local p = observedObj.status.parents[i]
+            if p.conditions == nil then return false end
+            for j = 1, #p.conditions do
+              local c = p.conditions[j]
+              if (c.type == 'Accepted' or c.type == 'ResolvedRefs') and c.status ~= 'True' then return false end
+            end
+          end
+          return true
+        end
+---
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: telox-tcproute}
+spec:
+  target: {apiVersion: gateway.networking.k8s.io/v1, kind: TCPRoute}
+  customizations:
+    statusAggregation:
+      luaScript: |
+        function AggregateStatus(desiredObj, statusItems)
+          if statusItems == nil then return desiredObj end
+          for i = 1, #statusItems do
+            if statusItems[i].status ~= nil then desiredObj.status = statusItems[i].status end
+          end
+          return desiredObj
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          if observedObj.status == nil or observedObj.status.parents == nil or #observedObj.status.parents == 0 then return false end
+          for i = 1, #observedObj.status.parents do
+            local p = observedObj.status.parents[i]
+            if p.conditions == nil then return false end
+            for j = 1, #p.conditions do
+              local c = p.conditions[j]
+              if (c.type == 'Accepted' or c.type == 'ResolvedRefs') and c.status ~= 'True' then return false end
+            end
+          end
+          return true
+        end
+---
+apiVersion: config.karmada.io/v1alpha1
+kind: ResourceInterpreterCustomization
+metadata: {name: telox-listenerset}
+spec:
+  target: {apiVersion: gateway.networking.k8s.io/v1, kind: ListenerSet}
+  customizations:
+    statusAggregation:
+      luaScript: |
+        function AggregateStatus(desiredObj, statusItems)
+          if statusItems == nil then return desiredObj end
+          for i = 1, #statusItems do
+            if statusItems[i].status ~= nil then desiredObj.status = statusItems[i].status end
+          end
+          return desiredObj
+        end
+    healthInterpretation:
+      luaScript: |
+        function InterpretHealth(observedObj)
+          if observedObj.status == nil or observedObj.status.conditions == nil then return false end
+          local programmed = false
+          for i = 1, #observedObj.status.conditions do
+            local c = observedObj.status.conditions[i]
+            if c.type == 'Accepted' and c.status ~= 'True' then return false end
+            if c.type == 'Programmed' and c.status == 'True' then programmed = true end
+          end
+          return programmed
+        end

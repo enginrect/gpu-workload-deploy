@@ -1,9 +1,16 @@
-# domain-c Instance → PropagationPolicy(namespaced). 키 없이 sshd만 띄움(리포에 키를 두지 않음).
+# domain-c Instance와 노출 오브젝트(Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute) → PropagationPolicy(namespaced), Domain과 같은 클러스터.
+# 운영에서는 telox-manager가 karmada-apiserver의 domain namespace에 이 오브젝트들을 생성(테스트는 Git). 키 없이 sshd만 띄움(리포에 키를 두지 않음).
 apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
 metadata: {name: instances, namespace: domain-c}
 spec:
-  resourceSelectors: [{apiVersion: telox.io/v1alpha1, kind: Instance, namespace: domain-c}]   # namespace는 Karmada webhook default — 생략하면 Argo SSA diff가 OutOfSync
+  resourceSelectors:   # namespace는 Karmada webhook default — 생략하면 Argo SSA diff가 OutOfSync
+  - {apiVersion: telox.io/v1alpha1, kind: Instance, namespace: domain-c}
+  - {apiVersion: v1, kind: Service, namespace: domain-c}
+  - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-c}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute, namespace: domain-c}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: ListenerSet, namespace: domain-c}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: TCPRoute, namespace: domain-c}
   placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}
 ---
 apiVersion: telox.io/v1alpha1
@@ -19,3 +26,46 @@ spec:
   - {name: PGID, value: "1000"}
   - {name: TZ, value: Asia/Seoul}
   ports: [{name: ssh, port: 2222, protocol: TCP}]   # protocol은 CRD default — 생략하면 OutOfSync
+---
+# k1 노출: ClusterIP Service(이름 = Instance) + gateway Envoy pod만 허용하는 NetworkPolicy + ListenerSet(TCP 10022) + TCPRoute → sshd 2222
+apiVersion: v1
+kind: Service
+metadata: {name: k1, namespace: domain-c, labels: {telox.io/instance: k1, telox.io/project: dev}}
+spec:
+  type: ClusterIP
+  selector: {telox.io/instance: k1}
+  ports: [{name: ssh, port: 2222, targetPort: 2222, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: k1-gateway-ingress, namespace: domain-c, labels: {telox.io/instance: k1}}
+spec:
+  podSelector: {matchLabels: {telox.io/instance: k1}}
+  policyTypes: [Ingress]
+  ingress:
+  - from:
+    - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: envoy-gateway-system}}
+      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: gw-c, gateway.envoyproxy.io/owning-gateway-namespace: domain-c}}
+    ports: [{protocol: TCP, port: 2222}]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata: {name: k1, namespace: domain-c, labels: {telox.io/instance: k1}}
+spec:
+  parentRef: {group: gateway.networking.k8s.io, kind: Gateway, name: gw-c}
+  listeners:
+  - name: ssh
+    protocol: TCP
+    port: 10022
+    allowedRoutes: {namespaces: {from: Same}, kinds: [{group: gateway.networking.k8s.io, kind: TCPRoute}]}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: TCPRoute
+metadata:
+  name: k1-2222
+  namespace: domain-c
+  labels: {telox.io/instance: k1}
+  annotations: {external-dns.kubernetes.io/hostname: k1-22-dev-c.r1.neo.test}   # ExternalDNS 0.23은 tcproute source 제외라 미발행
+spec:
+  parentRefs: [{group: gateway.networking.k8s.io, kind: ListenerSet, name: k1, sectionName: ssh}]
+  rules: [{backendRefs: [{group: "", kind: Service, name: k1, port: 2222, weight: 1}]}]
