@@ -6,9 +6,9 @@ Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)P
 
 ## 구조
 
-- `bootstrap/appproject.yaml` — AppProject karmada-test (cluster Secret은 인증서가 들어가므로 리포 밖)
+- `bootstrap/` — hub 쪽 1회 적용(손으로 apply): AppProject karmada-test + karmada-apiserver용 CRD 묶음(Gateway API chart 재사용 · Kyverno 렌더 그대로). Karmada 설치와 같은 층, root 밖 → CRD 변경은 CR 커밋보다 먼저. cluster Secret은 인증서가 들어가므로 리포 밖
 - `root.yaml` → `apps/` — app-of-apps
-  - wave 0 `telox-crds/`(CRD 4종 + CPP) · `kyverno-crds/`(ClusterPolicy · ValidatingPolicy CRD, karmada-apiserver 저장용) · `interpreter/`(RIC 5종)
+  - wave 0 `telox-crds/`(telox CRD 4종 + CPP — 상품과 같이 바뀌므로 root 안) · `interpreter/`(RIC 9종)
   - wave 1 `system-rbac/`(ns telox-system + SA + ClusterRole/Binding + Kyverno aggregated ClusterRole + CPP)
   - wave 2 `kyverno-policies/`(telox 정책 8 + CPP)
   - wave 0 `gateway-crds/`(Gateway API 5종 + EnvoyProxy CRD, karmada-apiserver 저장용)
@@ -42,10 +42,10 @@ Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)P
 - 접근(Mac) — HTTP 200 · HTTPS 200(인증서 CN `*.r1.neo.test`) · 미등록 호스트 404 · SSH 10022 → sshd 2222 응답(Permission denied = 경로 성립). backend가 보는 peer = Envoy pod IP, `X-Forwarded-For` = Mac IP
 - health — RIC(Gateway Programmed · HTTPRoute/TCPRoute parents Accepted+ResolvedRefs · ListenerSet Programmed) + Argo 내장(Gateway · HTTPRoute) + hub Lua(ListenerSet · TCPRoute)로 App Synced · Healthy, 메시지 "Gateway is healthy" 등
 - drift — 멤버 HTTPRoute 삭제 → 0.6초 재생성 · 1.2초 Accepted · HTTP 200 유지. 멤버 ListenerSet 포트 변경 → 0.7초 복귀, Envoy Service 포트 불변
-- 함정 — Gateway API CRD는 보호 그룹(`*.k8s.io`)이라 `api-approved.kubernetes.io` annotation 없이는 거부. CRD App과 CR App이 같은 커밋이면 CR App sync가 "failed to discover server resources"로 실패 → retry(3회째)로 회복. Git polling 3분이 전체 지연의 대부분(webhook 미설정)
+- 함정 — Gateway API CRD는 보호 그룹(`*.k8s.io`)이라 `api-approved.kubernetes.io` annotation 없이는 거부(렌더 결과를 그대로 둘 것). CRD App과 CR App이 같은 커밋이면 CR App sync가 "failed to discover server resources"로 실패 → retry로 회복 — app-of-apps wave는 자식 App 생성 순서만 정하고 이미 있는 App의 자체 sync는 막지 못함 → CRD 묶음을 `bootstrap/`으로 분리. Git polling 3분이 전체 지연의 대부분(webhook 미설정)
 
 ## main 머지 때
 
 - `apps/platform-rbac.yaml` targetRevision → main
-- `bootstrap/appproject.yaml`에 destination `tech-neo-karmada` 추가, `karmada/bootstrap/appproject.yaml`(karmada-test) 폐기
+- `bootstrap/appproject.yaml`에 destination `tech-neo-karmada` · sourceRepo docker.io/envoyproxy 추가, `karmada/bootstrap/appproject.yaml`(karmada-test) 폐기, `karmada/bootstrap/apiserver-crds-*.yaml`의 targetRevision → main
 - hub `telox-platform-root` targetRevision → main
