@@ -24,7 +24,7 @@ spec:
   ingress:
   - from:
     - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: envoy-gateway-system}}
-      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: gw-c, gateway.envoyproxy.io/owning-gateway-namespace: domain-c}}
+      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: gw-dev, gateway.envoyproxy.io/owning-gateway-namespace: domain-c}}
     ports: [{protocol: TCP, port: 8080}]
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -32,8 +32,8 @@ kind: HTTPRoute
 metadata: {name: k3-8080, namespace: domain-c, labels: {telox.io/instance: k3}}
 spec:
   parentRefs:
-  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-c, sectionName: https}
-  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-c, sectionName: http}
+  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev, sectionName: https}
+  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev, sectionName: http}
   hostnames: [k3-8080-dev-c.r1.neo.test]
   rules:
   - matches: [{path: {type: PathPrefix, value: /}}]

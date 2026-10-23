@@ -27,7 +27,7 @@ spec:
   - {name: TZ, value: Asia/Seoul}
   ports: [{name: ssh, port: 2222, protocol: TCP}]   # protocol은 CRD default — 생략하면 OutOfSync
 ---
-# k1 노출: ClusterIP Service(이름 = Instance) + gateway Envoy pod만 허용하는 NetworkPolicy + ListenerSet(TCP 10022) + TCPRoute → sshd 2222
+# k1 노출: ClusterIP Service(이름 = Instance) + project gateway(gw-dev) Envoy pod만 허용하는 NetworkPolicy + ListenerSet(TCP 10022) + TCPRoute → sshd 2222
 apiVersion: v1
 kind: Service
 metadata: {name: k1, namespace: domain-c, labels: {telox.io/instance: k1, telox.io/project: dev}}
@@ -45,14 +45,14 @@ spec:
   ingress:
   - from:
     - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: envoy-gateway-system}}
-      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: gw-c, gateway.envoyproxy.io/owning-gateway-namespace: domain-c}}
+      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: gw-dev, gateway.envoyproxy.io/owning-gateway-namespace: domain-c}}
     ports: [{protocol: TCP, port: 2222}]
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: ListenerSet
 metadata: {name: k1, namespace: domain-c, labels: {telox.io/instance: k1}}
 spec:
-  parentRef: {group: gateway.networking.k8s.io, kind: Gateway, name: gw-c}
+  parentRef: {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev}
   listeners:
   - name: ssh
     protocol: TCP

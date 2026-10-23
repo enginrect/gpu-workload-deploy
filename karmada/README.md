@@ -11,7 +11,7 @@ Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)P
   - wave 0 `telox-crds/`(telox CRD 4종 + CPP — 상품과 같이 바뀌므로 root 안) · `interpreter/`(RIC 9종)
   - wave 1 `system-rbac/`(ns telox-system + SA + ClusterRole/Binding + Kyverno aggregated ClusterRole + CPP)
   - wave 2 `kyverno-policies/`(telox 정책 8 + CPP)
-  - wave 3 `sku/` → 4 `domain-c/`(ns · Domain · CPP + `gateway.yaml` = EnvoyProxy ep-c · Gateway gw-c · PP) → 5 `instances/`(Instance + Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute, PP 하나)
+  - wave 3 `sku/` → 4 `domain-c/`(ns · Domain · CPP + `gateway-<project>.yaml` = project별 EnvoyProxy ep-dev · Gateway gw-dev · PP) → 5 `instances/`(Instance + Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute, PP 하나)
 - 전파 범위
   - 모든 wkld 멤버(`clusterAffinity.labelSelector telox.io/role=wkld`) — CRD · RBAC · 정책 · SKU
   - 클러스터 하나(`clusterNames`) — Domain + domain namespace, Instance(domain namespace의 PropagationPolicy)
@@ -34,9 +34,9 @@ Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)P
 - webhook — `clientConfig.service` webhook은 karmada-apiserver에서 dial 실패(Fail = 거부, Ignore = timeout 지연). 전파된 webhook의 멤버 caBundle 주입은 1초 안에 되돌려지고 retention RIC(`tests/webhook-f2-retain`)로 유지 → webhook이 있는 플랫폼은 직접 경로
 - CRD — App 삭제(cascade)는 CRD를 지우지 않음. CPP `preserveResourcesOnDeletion: true`로 template 삭제 때도 멤버 CRD 유지
 
-## domain별 Gateway · Instance 노출 (실측, tech)
+## project별 Gateway · Instance 노출 (실측, tech)
 
-- 구조 — domain namespace에 EnvoyProxy(ep-c: Service label `telox.io/domain=c` · `lbipam.cilium.io/ips` = Domain lbPool 안 IP · eTP Local) + Gateway(gw-c: GatewayClass telox, http 80 · https 443 `*.r1.neo.test`, allowedListeners Same, label dns-source) 1쌍을 Domain과 같은 클러스터로 PP 전파. Instance마다 ClusterIP Service(이름 = Instance) · gateway Envoy pod만 허용하는 NetworkPolicy · HTTPRoute(호스트명 `<name>-<port>-<project>-<domain>.r1.neo.test`) 또는 ListenerSet(TCP 포트) + TCPRoute를 같은 PP로 전파. TLS Secret은 리포 밖(멤버 domain ns에 직접, 운영은 cert-manager)
+- 구조 — domain = namespace + lbPool, project = Gateway 1개(LB IP 1개 · ListenerSet 포트 공간 1개). domain namespace에 project마다 EnvoyProxy(ep-dev: Service label `telox.io/domain=c` · `telox.io/project=dev` · `lbipam.cilium.io/ips` = Domain lbPool 안 IP · eTP Local) + Gateway(gw-dev: GatewayClass telox, http 80 · https 443 `*.r1.neo.test`, allowedListeners Same, label dns-source) 1쌍을 Domain과 같은 클러스터로 PP 전파. 다른 project의 Envoy는 NetworkPolicy(owning-gateway label)로 Instance에 닿지 못함. Instance마다 ClusterIP Service(이름 = Instance) · gateway Envoy pod만 허용하는 NetworkPolicy · HTTPRoute(호스트명 `<name>-<port>-<project>-<domain>.r1.neo.test`) 또는 ListenerSet(TCP 포트) + TCPRoute를 같은 PP로 전파. TLS Secret은 리포 밖(멤버 domain ns에 직접, 운영은 cert-manager)
 - 전파 — PP 적용 1초 안에 멤버 생성, Envoy pod Running · Gateway Accepted 즉시, Programmed +11초(주소 10.7.56.90, pool domain-c 1 used), Service 포트 80 · 443 · 10022. ExternalDNS가 HTTPRoute 호스트명 A 레코드를 6초 뒤 생성
 - 접근(Mac) — HTTP 200 · HTTPS 200(인증서 CN `*.r1.neo.test`) · 미등록 호스트 404 · SSH 10022 → sshd 2222 응답(Permission denied = 경로 성립). backend가 보는 peer = Envoy pod IP, `X-Forwarded-For` = Mac IP
 - health — RIC(Gateway Programmed · HTTPRoute/TCPRoute parents Accepted+ResolvedRefs · ListenerSet Programmed) + Argo 내장(Gateway · HTTPRoute) + hub Lua(ListenerSet · TCPRoute)로 App Synced · Healthy, 메시지 "Gateway is healthy" 등

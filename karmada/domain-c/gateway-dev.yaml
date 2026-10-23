@@ -1,10 +1,10 @@
-# domain별 Gateway — domain namespace 안에 EnvoyProxy · Gateway 1쌍. Domain과 같은 클러스터(clusterNames)로 전파.
-# LB IP는 Domain lbPool(10.7.56.88/29) 안에서 고정, Envoy Service label telox.io/domain=c로 pool serviceSelector가 받음.
+# project별 Gateway — domain namespace 안에 project마다 EnvoyProxy · Gateway 1쌍(이 파일은 project dev). Domain과 같은 클러스터(clusterNames)로 전파.
+# domain = namespace + lbPool(10.7.56.88/29), project = Gateway 1개 = LB IP 1개 + ListenerSet 포트 공간 1개. Envoy Service label telox.io/domain=c로 pool serviceSelector가 받음.
 # 테스트 타협: Envoy pod를 GPU node에 둠(tech L2 announce가 pool=gpu node만 광고). 운영은 BGP + edge pool.
 # TLS Secret wildcard-r1(*.r1.neo.test)은 리포에 두지 않음 — 멤버 domain-c에 직접 생성(운영은 cert-manager Certificate → 멤버 Secret).
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
-metadata: {name: ep-c, namespace: domain-c}
+metadata: {name: ep-dev, namespace: domain-c, labels: {telox.io/domain: c, telox.io/project: dev}}
 spec:
   provider:
     type: Kubernetes
@@ -18,20 +18,20 @@ spec:
         type: LoadBalancer
         externalTrafficPolicy: Local
         annotations: {lbipam.cilium.io/ips: "10.7.56.90"}
-        labels: {telox.io/domain: c}
+        labels: {telox.io/domain: c, telox.io/project: dev}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: gw-c
+  name: gw-dev
   namespace: domain-c
-  labels: {telox.io/domain: c, tktech.thakicloud.io/dns-source: "true"}   # ExternalDNS --gateway-label-filter opt-in
+  labels: {telox.io/domain: c, telox.io/project: dev, tktech.thakicloud.io/dns-source: "true"}   # ExternalDNS --gateway-label-filter opt-in
 spec:
   gatewayClassName: telox
   infrastructure:
-    parametersRef: {group: gateway.envoyproxy.io, kind: EnvoyProxy, name: ep-c}
+    parametersRef: {group: gateway.envoyproxy.io, kind: EnvoyProxy, name: ep-dev}
   allowedListeners:
-    namespaces: {from: Same}          # Instance의 ListenerSet(TCP 포트)이 붙는 자리
+    namespaces: {from: Same}          # 이 project Instance의 ListenerSet(TCP 포트)이 붙는 자리
   listeners:
   - name: http
     protocol: HTTP
@@ -47,9 +47,9 @@ spec:
 ---
 apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
-metadata: {name: gateway, namespace: domain-c}
+metadata: {name: gateway-dev, namespace: domain-c}
 spec:
   resourceSelectors:
-  - {apiVersion: gateway.envoyproxy.io/v1alpha1, kind: EnvoyProxy, name: ep-c, namespace: domain-c}
-  - {apiVersion: gateway.networking.k8s.io/v1, kind: Gateway, name: gw-c, namespace: domain-c}
+  - {apiVersion: gateway.envoyproxy.io/v1alpha1, kind: EnvoyProxy, name: ep-dev, namespace: domain-c}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: Gateway, name: gw-dev, namespace: domain-c}
   placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}
