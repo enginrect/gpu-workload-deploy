@@ -11,7 +11,6 @@ Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)P
   - wave 0 `telox-crds/`(telox CRD 4종 + CPP — 상품과 같이 바뀌므로 root 안) · `interpreter/`(RIC 9종)
   - wave 1 `system-rbac/`(ns telox-system + SA + ClusterRole/Binding + Kyverno aggregated ClusterRole + CPP)
   - wave 2 `kyverno-policies/`(telox 정책 8 + CPP)
-  - wave 0 `gateway-crds/`(Gateway API 5종 + EnvoyProxy CRD, karmada-apiserver 저장용)
   - wave 3 `sku/` → 4 `domain-c/`(ns · Domain · CPP + `gateway.yaml` = EnvoyProxy ep-c · Gateway gw-c · PP) → 5 `instances/`(Instance + Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute, PP 하나)
 - 전파 범위
   - 모든 wkld 멤버(`clusterAffinity.labelSelector telox.io/role=wkld`) — CRD · RBAC · 정책 · SKU
