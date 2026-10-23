@@ -2,8 +2,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata: {name: karmada-test, namespace: argocd}
 spec:
-  description: telox CRs through karmada-apiserver (test)
-  sourceRepos: [https://github.com/enginrect/gpu-workload-deploy.git]
+  description: telox objects through karmada-apiserver (test)
+  sourceRepos: [https://github.com/enginrect/gpu-workload-deploy.git, docker.io/envoyproxy]
   destinations:
   - {name: tech-neo-karmada, namespace: '*'}
   - {name: in-cluster, namespace: argocd}

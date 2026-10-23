@@ -1,0 +1,15 @@
+# karmada-apiserver에 Kyverno CRD 2종(ClusterPolicy · ValidatingPolicy) — template 저장용, 멤버 전파 없음. chart 3.7.1 렌더 그대로(crds/kyverno/)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karmada-apiserver-crds-kyverno
+  namespace: argocd
+  annotations: {argocd.argoproj.io/compare-options: ServerSideDiff=true}
+spec:
+  project: karmada-test
+  destination: {name: tech-neo-karmada}
+  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: karmada-argocd-test, path: karmada/bootstrap/crds/kyverno}   # main 머지 때 main
+  syncPolicy:
+    automated: {selfHeal: true, prune: true}
+    syncOptions: [ServerSideApply=true]
+    retry: {limit: 5, backoff: {duration: 10s, factor: 2, maxDuration: 3m}}
