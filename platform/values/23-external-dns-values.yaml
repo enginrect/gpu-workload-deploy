@@ -7,7 +7,7 @@ extraArgs:
   - --inmemory-zone=neo.test
   - --gateway-label-filter=tktech.thakicloud.io/dns-source=true   # dns-source label 있는 Gateway의 route만 (사내 ExternalDNS 규약과 동일)
 # gateway-tcproute 제외: 0.23.0은 TCPRoute를 v1alpha2로 읽는데 standard 1.6 CRD는 v1만 serve → informer가 영원히 sync 안 돼 ExternalDNS 전체가 멈춤(레코드 0건). upstream PR #6755(2026-09-28 merge, v1 이행)가 다음 릴리스에 포함되면 복귀.
-sources: [gateway-httproute, gateway-tlsroute]
+sources: [gateway-httproute, gateway-tlsroute, service]   # service: hostname annotation이 있는 LoadBalancer Service만 (SSH gateway 리전 주소 {region}-{cluster id 5자}.neo.test)
 policy: sync
 txtOwnerId: tech-neo-wkld
 domainFilters: [neo.test]
