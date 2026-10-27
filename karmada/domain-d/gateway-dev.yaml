@@ -1,4 +1,4 @@
-# project별 Gateway(project dev) — region-2. region-2 L2 announce는 모든 node라 Envoy pod 배치 제한 없음. TLS Secret wildcard-r2(*.r2.neo.test)는 멤버 domain-d에 직접 생성
+# project별 Gateway(project dev) — region-2. Cilium L2 + externalTrafficPolicy Local은 lease node ≠ Envoy node면 connection refused(재현) → edge node(label telox.io/edge) 하나에 Envoy pod와 L2 announce(policy nodeSelector)를 같이 고정. 운영은 BGP + edge pool. TLS Secret wildcard-r2(*.r2.neo.test)는 멤버 domain-d에 직접 생성
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata: {name: ep-dev, namespace: domain-d, labels: {telox.io/domain: d, telox.io/project: dev}}
@@ -6,7 +6,10 @@ spec:
   provider:
     type: Kubernetes
     kubernetes:
-      envoyDeployment: {replicas: 1}
+      envoyDeployment:
+        replicas: 1
+        pod:
+          nodeSelector: {telox.io/edge: "true"}
       envoyService:
         type: LoadBalancer
         externalTrafficPolicy: Local

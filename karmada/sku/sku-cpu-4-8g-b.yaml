@@ -1,0 +1,25 @@
+# 클러스터별 차이 검증 — 전 wkld에 같은 template(SKU cpu-4-8g-b)을 두고 region-2 멤버에서만 egressBandwidth를 다르게. ClusterOverridePolicy가 전파 전에 있어야 함(SKU spec은 멤버 정책이 불변으로 막음 → 이미 전파된 SKU에 override를 나중에 붙이면 멤버 update 거부)
+apiVersion: policy.karmada.io/v1alpha1
+kind: ClusterOverridePolicy
+metadata: {name: sku-cpu-4-8g-b-region2}
+spec:
+  resourceSelectors: [{apiVersion: telox.io/v1alpha1, kind: SKU, name: cpu-4-8g-b}]
+  overrideRules:
+  - targetCluster: {labelSelector: {matchLabels: {telox.io/region: region-2}}}
+    overriders:
+      plaintext:
+      - {path: /spec/egressBandwidth, operator: replace, value: 500M}
+---
+apiVersion: telox.io/v1alpha1
+kind: SKU
+metadata: {name: cpu-4-8g-b}
+spec: {pool: gpu, deviceClassName: telox-h100, gpuCount: 0, topology: {numaNodes: 1}, cpu: "4", memory: 8Gi, ephemeralStorage: 20Gi, egressBandwidth: 1G}
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: ClusterPropagationPolicy
+metadata: {name: sku-cpu-4-8g-b}
+spec:
+  resourceSelectors: [{apiVersion: telox.io/v1alpha1, kind: SKU, name: cpu-4-8g-b}]
+  placement:
+    clusterAffinity:
+      labelSelector: {matchLabels: {telox.io/role: wkld}}
