@@ -14,7 +14,7 @@ Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)P
   - wave 3 `sku/` → 4 `domain-c/`(ns · Domain · CPP + `gateway-<project>.yaml` = project별 EnvoyProxy ep-dev · Gateway gw-dev · PP) → 5 `instances/`(Instance + Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute, PP 하나)
 - 전파 범위
   - 모든 wkld 멤버(`clusterAffinity.labelSelector telox.io/role=wkld`) — CRD · RBAC · 정책 · SKU
-  - 클러스터 하나(`clusterNames`) — Domain + domain namespace, Instance(domain namespace의 PropagationPolicy)
+  - domain이 걸치는 클러스터들(`clusterNames`, 클러스터별 값은 ClusterOverridePolicy) — Domain + domain namespace. Instance는 라벨 `telox.io/region`의 PropagationPolicy(labelSelector + region fieldSelector)가 그 리전의 클러스터 하나로(`instances-d/pp-regions.yaml`)
   - 멤버 Cluster 오브젝트에 `spec.region` · `spec.provider` · `spec.zones` + label `telox.io/role` · `telox.io/region`
 - `tests/` — 개별 확인용(namespace 자동 전파 · hook Job · webhook 전파 · CRD+CR 동시)
 
@@ -36,7 +36,7 @@ Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)P
 
 ## project별 Gateway · Instance 노출 (실측, tech)
 
-- 구조 — domain = namespace + lbPool, project = Gateway 1개(LB IP 1개 · ListenerSet 포트 공간 1개). domain namespace에 project마다 EnvoyProxy(ep-dev: Service label `telox.io/domain=c` · `telox.io/project=dev` · `lbipam.cilium.io/ips` = Domain lbPool 안 IP · eTP Local) + Gateway(gw-dev: GatewayClass telox, http 80 · https 443 `*.r1.neo.test`, allowedListeners Same, label dns-source) 1쌍을 Domain과 같은 클러스터로 PP 전파. 다른 project의 Envoy는 NetworkPolicy(owning-gateway label)로 Instance에 닿지 못함. Instance마다 ClusterIP Service(이름 = Instance) · gateway Envoy pod만 허용하는 NetworkPolicy · HTTPRoute(호스트명 `<name>-<port>-<project>-<domain>.r1.neo.test`) 또는 ListenerSet(TCP 포트) + TCPRoute를 같은 PP로 전파. TLS Secret은 리포 밖(멤버 domain ns에 직접, 운영은 cert-manager)
+- 구조 — domain = namespace + lbPool, project = Gateway 1개(LB IP 1개 · ListenerSet 포트 공간 1개). domain namespace에 project마다 EnvoyProxy(ep-dev: Service label `telox.io/domain=c` · `telox.io/project=dev` · `lbipam.cilium.io/ips` = Domain lbPool 안 IP · eTP Local) + Gateway(gw-dev: GatewayClass telox, http 80 · https 443 `*.r1.neo.test`, allowedListeners Same, label dns-source) 1쌍을 Instance가 배치되는 리전의 클러스터로 PP 전파(domain이 여러 리전에 걸치면 리전마다 1쌍). 다른 project의 Envoy는 NetworkPolicy(owning-gateway label)로 Instance에 닿지 못함. Instance마다 ClusterIP Service(이름 = Instance) · gateway Envoy pod만 허용하는 NetworkPolicy · HTTPRoute(호스트명 `<name>-<port>-<project>-<domain>.r1.neo.test`) 또는 ListenerSet(TCP 포트) + TCPRoute를 같은 PP로 전파. TLS Secret은 리포 밖(멤버 domain ns에 직접, 운영은 cert-manager)
 - 전파 — PP 적용 1초 안에 멤버 생성, Envoy pod Running · Gateway Accepted 즉시, Programmed +11초(주소 10.7.56.90, pool domain-c 1 used), Service 포트 80 · 443 · 10022. ExternalDNS가 HTTPRoute 호스트명 A 레코드를 6초 뒤 생성
 - 접근(Mac) — HTTP 200 · HTTPS 200(인증서 CN `*.r1.neo.test`) · 미등록 호스트 404 · SSH 10022 → sshd 2222 응답(Permission denied = 경로 성립). backend가 보는 peer = Envoy pod IP, `X-Forwarded-For` = Mac IP
 - health — RIC(Gateway Programmed · HTTPRoute/TCPRoute parents Accepted+ResolvedRefs · ListenerSet Programmed) + Argo 내장(Gateway · HTTPRoute) + hub Lua(ListenerSet · TCPRoute)로 App Synced · Healthy, 메시지 "Gateway is healthy" 등

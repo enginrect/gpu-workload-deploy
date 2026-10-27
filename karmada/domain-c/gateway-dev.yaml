@@ -1,4 +1,4 @@
-# project별 Gateway — domain namespace 안에 project마다 EnvoyProxy · Gateway 1쌍(이 파일은 project dev). Domain과 같은 클러스터(clusterNames)로 전파.
+# project별 Gateway — domain namespace 안에 project마다 EnvoyProxy · Gateway 1쌍(이 파일은 project dev). Instance가 배치되는 클러스터(clusterNames)로 전파 — domain이 여러 리전에 걸치면 리전마다 1쌍.
 # domain = namespace + lbPool(10.7.56.88/29), project = Gateway 1개 = LB IP 1개 + ListenerSet 포트 공간 1개. Envoy Service label telox.io/domain=c로 pool serviceSelector가 받음.
 # 테스트 타협: Envoy pod를 GPU node에 둠(tech L2 announce가 pool=gpu node만 광고). 운영은 BGP + edge pool.
 # TLS Secret wildcard-r1(*.r1.neo.test)은 리포에 두지 않음 — 멤버 domain-c에 직접 생성(운영은 cert-manager Certificate → 멤버 Secret).

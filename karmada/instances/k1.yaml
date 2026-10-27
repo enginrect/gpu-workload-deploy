@@ -1,4 +1,4 @@
-# domain-c Instance와 노출 오브젝트(Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute) → PropagationPolicy(namespaced), Domain과 같은 클러스터.
+# domain-c Instance와 노출 오브젝트(Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute) → PropagationPolicy(namespaced), Domain이 걸치는 클러스터 중 하나(domain-c는 클러스터 하나). 리전 선택 라벨 방식은 instances-d/pp-regions.yaml.
 # 운영에서는 telox-manager가 karmada-apiserver의 domain namespace에 이 오브젝트들을 생성(테스트는 Git). 키 없이 sshd만 띄움(리포에 키를 두지 않음).
 apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
