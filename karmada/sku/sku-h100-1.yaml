@@ -1,0 +1,15 @@
+# region-1 전용 GPU SKU(H100 1장). placement는 fieldSelector(region). 고객이 이 SKU를 원하면 telox-manager가 region-1을 선택해 Instance에 telox.io/region=region-1을 붙임
+apiVersion: telox.io/v1alpha1
+kind: SKU
+metadata: {name: h100-1}
+spec: {pool: gpu, deviceClassName: telox-h100, gpuCount: 1, topology: {numaNodes: 1}, cpu: "8", memory: 32Gi, ephemeralStorage: 50Gi, egressBandwidth: 1G}
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: ClusterPropagationPolicy
+metadata: {name: sku-h100-1}
+spec:
+  resourceSelectors: [{apiVersion: telox.io/v1alpha1, kind: SKU, name: h100-1}]
+  placement:
+    clusterAffinity:
+      labelSelector: {matchLabels: {telox.io/role: wkld}}
+      fieldSelector: {matchExpressions: [{key: region, operator: In, values: [region-1]}]}

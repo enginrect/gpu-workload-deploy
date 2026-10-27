@@ -1,0 +1,29 @@
+# Instance별 리전 선택: telox-manager가 Instance(와 부속 오브젝트)에 telox.io/region 라벨을 붙이면 그 리전으로 배치.
+# labelSelector PP가 kind-only PP(instances)보다 우선(Karmada 암묵 우선순위: name > label > kind). 라벨 없는 Instance는 instances PP(region-2) 유지.
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata: {name: instances-region-1, namespace: domain-d}
+spec:
+  resourceSelectors:
+  - {apiVersion: telox.io/v1alpha1, kind: Instance, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
+  - {apiVersion: v1, kind: Service, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
+  - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
+  placement:
+    clusterAffinity:
+      labelSelector: {matchLabels: {telox.io/role: wkld}}
+      fieldSelector: {matchExpressions: [{key: region, operator: In, values: [region-1]}]}
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata: {name: instances-region-2, namespace: domain-d}
+spec:
+  resourceSelectors:
+  - {apiVersion: telox.io/v1alpha1, kind: Instance, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
+  - {apiVersion: v1, kind: Service, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
+  - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
+  placement:
+    clusterAffinity:
+      labelSelector: {matchLabels: {telox.io/role: wkld}}
+      fieldSelector: {matchExpressions: [{key: region, operator: In, values: [region-2]}]}

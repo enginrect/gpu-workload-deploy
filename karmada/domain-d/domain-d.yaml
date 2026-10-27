@@ -1,4 +1,5 @@
-# Domain d → region-2 클러스터 하나(tech-neo-wkld-region2)에만. domain은 클러스터 하나에만 — 다른 멤버(region-1)에 흔적이 없어야 함
+# Domain d → region-1 · region-2 두 클러스터에 배치. domain은 계약 전체, 클러스터별 차이(제공 SKU · GPU 상한 · LB 대역)는 ClusterOverridePolicy로.
+# hub의 Domain spec은 region-2 기준값, region-1은 domain-d-region1 override가 덮어씀. 고객은 클러스터를 모르고 리전만 봄.
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -12,11 +13,11 @@ apiVersion: telox.io/v1alpha1
 kind: Domain
 metadata: {name: d}
 spec:
-  allowedSkus: [cpu-2-4g]
-  maxGpus: {gpu: 0}
+  allowedSkus: [cpu-2-4g]            # region-2 제공 SKU. region-1은 override로 [h100-1]
+  maxGpus: {gpu: 0}                  # region-2는 GPU 없음. region-1은 override로 1
   maxStorage: 100Gi
   maxInstances: 4
-  lbPool: {cidrs: [10.7.56.112/29]}   # region-2 LB 대역(10.7.56.96/27) 안. default-pool은 /28로 좁힘
+  lbPool: {cidrs: [10.7.56.112/29]}   # region-2 LB 대역(10.7.56.96/27) 안. region-1은 override로 10.7.56.80/29
 ---
 apiVersion: policy.karmada.io/v1alpha1
 kind: ClusterPropagationPolicy
@@ -25,4 +26,20 @@ spec:
   resourceSelectors:
   - {apiVersion: v1, kind: Namespace, name: domain-d}
   - {apiVersion: telox.io/v1alpha1, kind: Domain, name: d}
-  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld-region2]}}
+  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld, tech-neo-wkld-region2]}}
+---
+# region-1 클러스터의 Domain d: 제공 SKU · GPU 상한 · LB 대역이 다름. telox-domain 정책이 allowedSkus가 그 클러스터에 있는 SKU인지 검사하므로 클러스터별 값이 필수
+apiVersion: policy.karmada.io/v1alpha1
+kind: ClusterOverridePolicy
+metadata: {name: domain-d-region1}
+spec:
+  resourceSelectors:
+  - {apiVersion: telox.io/v1alpha1, kind: Domain, name: d}
+  overrideRules:
+  - targetCluster:
+      labelSelector: {matchLabels: {telox.io/region: region-1}}
+    overriders:
+      plaintext:
+      - {path: /spec/allowedSkus, operator: replace, value: [h100-1]}
+      - {path: /spec/maxGpus, operator: replace, value: {gpu: 1}}
+      - {path: /spec/lbPool/cidrs, operator: replace, value: [10.7.56.80/29]}
