@@ -1,0 +1,53 @@
+# domain-d(region-2) Instance d1 — nginx unprivileged 8080 + Service + NetworkPolicy + HTTPRoute(d1-8080-dev-d.r2.neo.test)
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata: {name: instances, namespace: domain-d}
+spec:
+  resourceSelectors:
+  - {apiVersion: telox.io/v1alpha1, kind: Instance, namespace: domain-d}
+  - {apiVersion: v1, kind: Service, namespace: domain-d}
+  - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-d}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute, namespace: domain-d}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: ListenerSet, namespace: domain-d}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: TCPRoute, namespace: domain-d}
+  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld-region2]}}
+---
+apiVersion: telox.io/v1alpha1
+kind: Instance
+metadata: {name: d1, namespace: domain-d, labels: {telox.io/project: dev}}
+spec:
+  sku: cpu-2-4g
+  image: docker.io/nginxinc/nginx-unprivileged:1.27-alpine
+  ports: [{name: http, port: 8080, protocol: TCP}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: d1, namespace: domain-d, labels: {telox.io/instance: d1, telox.io/project: dev}}
+spec:
+  type: ClusterIP
+  selector: {telox.io/instance: d1}
+  ports: [{name: http, port: 8080, targetPort: 8080, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: d1-gateway-ingress, namespace: domain-d, labels: {telox.io/instance: d1}}
+spec:
+  podSelector: {matchLabels: {telox.io/instance: d1}}
+  policyTypes: [Ingress]
+  ingress:
+  - from:
+    - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: envoy-gateway-system}}
+      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: gw-dev, gateway.envoyproxy.io/owning-gateway-namespace: domain-d}}
+    ports: [{protocol: TCP, port: 8080}]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata: {name: d1-8080, namespace: domain-d, labels: {telox.io/instance: d1}}
+spec:
+  parentRefs:
+  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev, sectionName: https}
+  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev, sectionName: http}
+  hostnames: [d1-8080-dev-d.r2.neo.test]
+  rules:
+  - matches: [{path: {type: PathPrefix, value: /}}]
+    backendRefs: [{group: "", kind: Service, name: d1, port: 8080, weight: 1}]
