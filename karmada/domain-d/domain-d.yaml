@@ -13,7 +13,7 @@ kind: Domain
 metadata: {name: d}
 spec:
   allowedSkus: [cpu-2-4g]
-  maxGpus: {cpu: 0}
+  maxGpus: {gpu: 0}
   maxStorage: 100Gi
   maxInstances: 4
   lbPool: {cidrs: [10.7.56.112/29]}   # region-2 LB 대역(10.7.56.96/27) 안. default-pool은 /28로 좁힘

@@ -1,8 +1,8 @@
-# region-2 전용 SKU(pool cpu). placement는 fieldSelector(region) — 그 region의 모든 wkld 클러스터가 대상. telox-sku 정책이 DeviceClass 존재 · pool node 존재를 검사
+# region-2 전용 SKU(pool gpu — SKU CRD pool enum은 gpu · serverless뿐). placement는 fieldSelector(region) — 그 region의 모든 wkld 클러스터가 대상. telox-sku 정책이 DeviceClass 존재 · pool node 존재를 검사
 apiVersion: telox.io/v1alpha1
 kind: SKU
 metadata: {name: cpu-2-4g}
-spec: {pool: cpu, deviceClassName: telox-h100, gpuCount: 0, topology: {numaNodes: 1}, cpu: "2", memory: 4Gi, ephemeralStorage: 10Gi, egressBandwidth: 1G}
+spec: {pool: gpu, deviceClassName: telox-h100, gpuCount: 0, topology: {numaNodes: 1}, cpu: "2", memory: 4Gi, ephemeralStorage: 10Gi, egressBandwidth: 1G}
 ---
 apiVersion: policy.karmada.io/v1alpha1
 kind: ClusterPropagationPolicy
