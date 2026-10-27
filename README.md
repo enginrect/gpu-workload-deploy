@@ -208,3 +208,11 @@ sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 - 진짜 배포에서 ndra(wave 4)의 DRA kubelet plugin이 driver pod보다 먼저 떴다(plugin 19:04:26 · driver 시작 19:04:32 · driver Ready 19:05:42). plugin의 init-container가 `/run/nvidia/driver`에 nvidia-smi · libnvidia-ml이 생길 때까지 재시도해 결과는 정상이었고, full GPU claim probe로 devnode 5개 · libcuda/libnvidia-ml 580.159.03 · `nvidia-smi -L` H100 NVL 주입을 확인했다(`docs/fresh-deploy-2026-10-20/`).
 - 우연에 기대지 않도록 둘을 고정: hub argocd-cm에 `nvidia.com/ClusterPolicy` health check(state ready → Healthy, 아니면 Progressing)를 추가해 gpu-operator Application이 driver 스택 준비 뒤에만 Healthy가 되게 했고, `apps/ndra.yaml`을 wave 5로 내렸다. 이제 root는 driver ready 뒤에 ndra를 만든다.
 - driver pod가 **재생성**될 때 plugin을 재시작해야 하는 규칙은 별도(설계 Appendix) — GitOps 순서와 무관하게 gpu-operator 업그레이드 절차에서 지킬 것.
+
+## wkld 클러스터 추가(멀티 클러스터) — 브랜치 karmada-argocd-test
+
+1. 등록 — `karmadactl register … --cluster-name <name> --cluster-region <region> --cluster-provider openstack --cluster-zones <zone>` (worker에 taint가 있으면 agent Deployment toleration patch)
+2. 직접 경로 — Argo cluster Secret에 label `telox.io/role=wkld` · `telox.io/region=<region>` · `telox.io/gpu=true|false`(false면 gpu-operator · ndra · nri-topo 생략) + AppProject `telox-platform` destinations에 이름 추가 → `bootstrap/applicationset.yaml`(cluster generator)이 `telox-platform-<name>` root Application을 만들고 `apps-chart/`를 렌더(Application 이름 접두사 = 클러스터 이름)
+3. 플랫폼 App이 전부 Synced · Healthy가 된 **뒤에** Karmada Cluster label `telox.io/role=wkld` · `telox.io/region=<region>` — Karmada는 Cluster 변경 이벤트에만 전 binding을 재스케줄하고 멤버 apiEnablements 갱신엔 하지 않으므로, 먼저 label을 붙였으면 플랫폼 완료 뒤 label을 하나 더 바꿔 재트리거
+4. domain 배치 — `karmada/domain-<x>/`에 namespace(skip label) · Domain · project Gateway + ClusterPropagationPolicy `clusterNames: [<name>]`, Instance는 `karmada/instances-<x>/`. region 전용 SKU는 CPP `fieldSelector region In [<region>]`. 클러스터별 값 차이는 ClusterOverridePolicy(targetCluster label) — **전파 전에** 선언(SKU처럼 불변 kind는 나중에 붙이면 멤버가 거부)
+5. tech L2 환경 — Envoy pod와 Cilium L2 announce가 같은 node여야 함(eTP Local). edge node에 `telox.io/edge=true` + pool label 1개만, EnvoyProxy nodeSelector edge. ExternalDNS `txtOwnerId`는 클러스터별로 달라야 함(현재 values 공통 — 미반영)
