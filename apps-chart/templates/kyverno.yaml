@@ -1,0 +1,37 @@
+# wave 2 — Kyverno 3.7.1(v1.17.1) helm 채택. releaseName · namespace = 기존 release(kyverno/kyverno). CRD는 차트 templates(crds subchart)에 있어 이 Application에 포함
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-kyverno
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+    namespace: kyverno
+  sources:
+  - repoURL: https://kyverno.github.io/kyverno
+    chart: kyverno
+    targetRevision: 3.7.1
+    helm:
+      releaseName: kyverno
+      valueFiles:
+      - $values/platform/values/kyverno.yaml
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    ref: values
+  syncPolicy:
+    # 2026-10-20 채택 완료(전 Application zero-diff · 재시작 0 확인) 뒤 수동 → automated. prune은 계속 false(리포에서 지운 리소스는 손으로 정리).
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - CreateNamespace=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

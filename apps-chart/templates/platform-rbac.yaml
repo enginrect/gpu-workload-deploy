@@ -1,0 +1,27 @@
+# wave 1 — 플랫폼 구성 요소용 RBAC(dcgm-exporter DRA 읽기). telox SA · RBAC · ns telox-system은 Karmada 경로(karmada/system-rbac)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-platform-rbac
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: karmada-argocd-test   # 테스트 브랜치 한정 — main 머지 때 main으로(platform/rbac이 main에 없음)
+    path: platform/rbac
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

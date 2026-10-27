@@ -1,0 +1,29 @@
+# 직접 경로의 N 클러스터 — cluster Secret(label telox.io/role=wkld)마다 root Application 1개(apps-chart 렌더). bootstrap 1회 적용
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: telox-platform
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+  - clusters:
+      selector:
+        matchLabels: {telox.io/role: wkld}
+  template:
+    metadata:
+      name: 'telox-platform-{{ .name }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+        targetRevision: karmada-argocd-test
+        path: apps-chart
+        helm:
+          parameters:
+          - {name: cluster, value: '{{ .name }}'}
+          - {name: gpu, value: '{{ index .metadata.labels "telox.io/gpu" | default "true" }}'}
+      destination: {server: https://kubernetes.default.svc, namespace: argocd}
+      syncPolicy:
+        automated: {selfHeal: true, prune: false}
+        syncOptions: [ServerSideApply=true]

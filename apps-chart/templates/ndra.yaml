@@ -1,0 +1,44 @@
+{{- if ne (toString .Values.gpu) "false" }}
+# wave 4 — NVIDIA DRA driver v0.5.1 helm 채택(release ndra). NGC helm 저장소엔 25.x만 있어 GitHub 태그 v0.5.1의 차트(deployments/helm/dra-driver-nvidia-gpu)를
+# 이 리포 platform/charts/dra-driver-nvidia-gpu-v0.5.1에 복사해 git source로 씀(upstream 직접 참조는 repo-server fetch timeout — UPSTREAM.md). ns는 PSA privileged
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-ndra
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"   # gpu-operator(4) 뒤. hub의 ClusterPolicy health check와 함께 driver ready 뒤에 DRA plugin이 뜨게
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+    namespace: nvidia-dra-driver-gpu
+  sources:
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    path: platform/charts/dra-driver-nvidia-gpu-v0.5.1
+    targetRevision: main
+    helm:
+      releaseName: ndra
+      skipCrds: true
+      valueFiles:
+      - $values/platform/values/ndra.yaml
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    ref: values
+  syncPolicy:
+    # 2026-10-20 채택 완료(전 Application zero-diff · 재시작 0 확인) 뒤 수동 → automated. prune은 계속 false(리포에서 지운 리소스는 손으로 정리).
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - CreateNamespace=true
+    - RespectIgnoreDifferences=true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}
+{{- end }}

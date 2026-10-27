@@ -17,6 +17,8 @@ spec:
   destinations:
   - name: tech-neo-wkld
     namespace: '*'
+  - name: tech-neo-wkld-region2
+    namespace: '*'
   clusterResourceWhitelist:
   - group: '*'
     kind: '*'

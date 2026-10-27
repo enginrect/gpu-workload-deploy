@@ -1,0 +1,3 @@
+# ApplicationSet이 cluster Secret에서 채움
+cluster: tech-neo-wkld   # Argo CD cluster 이름 = Application 이름 접두사 · destination.name
+gpu: true                 # false면 GPU 전용 Application(gpu-operator · ndra · nri-topo · deviceclass) 생략 — cluster Secret label telox.io/gpu

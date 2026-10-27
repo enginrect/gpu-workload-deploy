@@ -1,0 +1,28 @@
+# wave 6 — GatewayClass telox(22-project-gateway-dev.yaml 중 플랫폼 몫)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-gatewayclass
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    path: platform/gatewayclass
+  syncPolicy:
+    # 2026-10-20 채택 완료(전 Application zero-diff · 재시작 0 확인) 뒤 수동 → automated. prune은 계속 false(리포에서 지운 리소스는 손으로 정리).
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

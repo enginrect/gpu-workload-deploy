@@ -1,0 +1,39 @@
+# wave 6 — Envoy Gateway v1.9.2 helm 채택(release eg). skipCrds + values crds.enabled false — CRD · VAP는 gateway-crds(wave 0).
+# certgen Job · topology-injector MutatingWebhookConfiguration은 helm pre-install/pre-upgrade hook → Argo PreSync hook으로 sync마다 재실행(기존 Secret 유지, caBundle은 기존 CA로 patch — helm upgrade와 같은 동작)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-eg
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+    namespace: envoy-gateway-system
+  sources:
+  - repoURL: docker.io/envoyproxy
+    chart: gateway-helm
+    targetRevision: v1.9.2
+    helm:
+      releaseName: eg
+      skipCrds: true
+      valueFiles:
+      - $values/platform/values/21-envoy-gateway-values.yaml
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    ref: values
+  syncPolicy:
+    # 2026-10-20 채택 완료(전 Application zero-diff · 재시작 0 확인) 뒤 수동 → automated. prune은 계속 false(리포에서 지운 리소스는 손으로 정리).
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - CreateNamespace=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

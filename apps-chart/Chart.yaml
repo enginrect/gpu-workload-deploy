@@ -1,0 +1,5 @@
+apiVersion: v2
+name: telox-platform-apps
+description: wkld 클러스터 1개분 직접 경로 Application 묶음(app-of-apps). ApplicationSet(cluster generator)이 클러스터마다 1회 렌더
+type: application
+version: 0.1.0

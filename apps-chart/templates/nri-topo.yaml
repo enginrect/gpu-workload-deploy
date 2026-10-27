@@ -1,0 +1,39 @@
+{{- if ne (toString .Values.gpu) "false" }}
+# wave 4 — nri-resource-policy-topology-aware v0.14.0 helm 채택(release nri-topo, ns kube-system). ENABLE_TEST_APIS=1은 차트가 항상 렌더(values/nri-topo.yaml 주석)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-nri-topo
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+    namespace: kube-system
+  sources:
+  - repoURL: https://containers.github.io/nri-plugins
+    chart: nri-resource-policy-topology-aware
+    targetRevision: v0.14.0
+    helm:
+      releaseName: nri-topo
+      skipCrds: true
+      valueFiles:
+      - $values/platform/values/nri-topo.yaml
+  - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    ref: values
+  syncPolicy:
+    # 2026-10-20 채택 완료(전 Application zero-diff · 재시작 0 확인) 뒤 수동 → automated. prune은 계속 false(리포에서 지운 리소스는 손으로 정리).
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}
+{{- end }}
