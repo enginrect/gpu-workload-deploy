@@ -19,11 +19,21 @@ spec:
   maxInstances: 4
   lbPool: {cidrs: [10.7.56.88/29]}
 ---
+# domain LB 대역 = Domain spec.lbPool과 같은 값(예전 telox-worker가 만들던 pool, Overwrite로 채택). pool CRD는 Controlplane bootstrap(karmada/bootstrap/crds/cilium)
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata: {name: domain-c, labels: {telox.io/domain: c}}
+spec:
+  blocks: [{cidr: 10.7.56.88/29}]
+  serviceSelector: {matchLabels: {telox.io/domain: c}}
+---
 apiVersion: policy.karmada.io/v1alpha1
 kind: ClusterPropagationPolicy
 metadata: {name: domain-c}
 spec:
+  conflictResolution: Overwrite
   resourceSelectors:
   - {apiVersion: v1, kind: Namespace, name: domain-c}
   - {apiVersion: telox.io/v1alpha1, kind: Domain, name: c}
+  - {apiVersion: cilium.io/v2, kind: CiliumLoadBalancerIPPool, name: domain-c}
   placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}

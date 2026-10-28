@@ -17,15 +17,25 @@ spec:
   maxGpus: {gpu: 0}                  # region-2는 GPU 없음. region-1은 override로 1
   maxStorage: 100Gi
   maxInstances: 4
-  lbPool: {cidrs: [10.7.56.112/29]}   # region-2 LB 대역(10.7.56.96/27) 안. region-1은 override로 10.7.56.80/29
+  lbPool: {cidrs: [10.7.56.112/29]}   # region-2 LB 대역(10.7.56.96/27) 안. region-1은 override로 10.7.56.64/29
+---
+# domain LB 대역 — region-2 기준값, region-1은 COP domain-d-pool-region1(kind마다 COP 분리 — §3.16 함정)
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata: {name: domain-d, labels: {telox.io/domain: d}}
+spec:
+  blocks: [{cidr: 10.7.56.112/29}]
+  serviceSelector: {matchLabels: {telox.io/domain: d}}
 ---
 apiVersion: policy.karmada.io/v1alpha1
 kind: ClusterPropagationPolicy
 metadata: {name: domain-d}
 spec:
+  conflictResolution: Overwrite
   resourceSelectors:
   - {apiVersion: v1, kind: Namespace, name: domain-d}
   - {apiVersion: telox.io/v1alpha1, kind: Domain, name: d}
+  - {apiVersion: cilium.io/v2, kind: CiliumLoadBalancerIPPool, name: domain-d}
   placement: {clusterAffinity: {clusterNames: [tech-neo-wkld, tech-neo-wkld-region2]}}
 ---
 # region-1 클러스터의 Domain d: 제공 SKU · GPU 상한 · LB 대역이 다름. telox-domain 정책이 allowedSkus가 그 클러스터에 있는 SKU인지 검사하므로 클러스터별 값이 필수
@@ -42,4 +52,17 @@ spec:
       plaintext:
       - {path: /spec/allowedSkus, operator: replace, value: [h100-1]}
       - {path: /spec/maxGpus, operator: replace, value: {gpu: 1}}
-      - {path: /spec/lbPool/cidrs, operator: replace, value: [10.7.56.80/29]}
+      - {path: /spec/lbPool/cidrs, operator: replace, value: [10.7.56.64/29]}   # 10.7.56.80/29는 SSH gateway 풀(telox-ssh) — 겹치지 않게 변경
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: ClusterOverridePolicy
+metadata: {name: domain-d-pool-region1}
+spec:
+  resourceSelectors:
+  - {apiVersion: cilium.io/v2, kind: CiliumLoadBalancerIPPool, name: domain-d}
+  overrideRules:
+  - targetCluster:
+      labelSelector: {matchLabels: {telox.io/region: region-1}}
+    overriders:
+      plaintext:
+      - {path: /spec/blocks, operator: replace, value: [{cidr: 10.7.56.64/29}]}

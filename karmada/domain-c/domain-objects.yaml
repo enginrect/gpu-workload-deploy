@@ -1,0 +1,49 @@
+# Domain c 전개 오브젝트(분담 재편 §3.16): RoleBinding 2 · ResourceQuota · default-deny → Karmada 경로(PP domain-objects). 예전 telox-worker Domain reconcile 결과를 Overwrite로 채택(uid 유지).
+# label telox.io/domain=c가 PP 선택 기준. agent는 ClusterRole telox:domain-member · telox:telox-broker-exec에만 bind 가능(RBAC resourceNames + VAP)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: telox-domain-member, namespace: domain-c, labels: {telox.io/domain: c}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: "telox:domain-member"}
+subjects:
+- {apiGroup: rbac.authorization.k8s.io, kind: Group, name: "domain-c:member"}
+- {apiGroup: rbac.authorization.k8s.io, kind: Group, name: "ops:backend"}
+- {kind: ServiceAccount, name: telox-manager, namespace: telox-system}
+---
+# 기본 SSH — telox-broker의 pods/exec는 domain namespace마다 이 RoleBinding으로만(ClusterRoleBinding 없음)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: telox-broker-exec, namespace: domain-c, labels: {telox.io/domain: c}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: "telox:telox-broker-exec"}
+subjects:
+- {kind: ServiceAccount, name: telox-broker, namespace: telox-system}
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata: {name: domain, namespace: domain-c, labels: {telox.io/domain: c}}
+spec:
+  hard:
+    pods: "4"
+    persistentvolumeclaims: "4"
+    services.loadbalancers: "4"
+    services.nodeports: "0"
+    telox-rbd.storageclass.storage.k8s.io/requests.storage: 100Gi
+    telox-cephfs.storageclass.storage.k8s.io/requests.storage: 100Gi
+---
+# 얇은 worker 규칙: 이 default-deny가 있어야 worker가 Instance Pod를 만듦(Domain 전개 완료 신호)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny, namespace: domain-c, labels: {telox.io/domain: c}}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata: {name: domain-objects, namespace: domain-c}
+spec:
+  conflictResolution: Overwrite
+  resourceSelectors:
+  - {apiVersion: rbac.authorization.k8s.io/v1, kind: RoleBinding, namespace: domain-c, labelSelector: {matchLabels: {telox.io/domain: c}}}
+  - {apiVersion: v1, kind: ResourceQuota, namespace: domain-c, labelSelector: {matchLabels: {telox.io/domain: c}}}
+  - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-c, labelSelector: {matchLabels: {telox.io/domain: c}}}
+  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}
