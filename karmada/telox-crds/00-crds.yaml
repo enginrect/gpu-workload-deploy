@@ -58,6 +58,10 @@ spec:
                     port:     {type: integer, minimum: 1, maximum: 65535}
                     protocol: {type: string, enum: [TCP, UDP], default: TCP}
               sshPublicKey: {type: string}
+              authorizedKeys:   # 기본 SSH — 이 Instance에 접속할 수 있는 OpenSSH 공개키. IAM(telox-manager)이 기록, Instance와 같이 그 클러스터에만 전파. telox-worker는 이 필드 변경에 Pod를 재생성하지 않음
+                type: array
+                maxItems: 32
+                items: {type: string, pattern: '^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(256|384|521)|sk-ssh-ed25519@openssh\.com|sk-ecdsa-sha2-nistp256@openssh\.com) [A-Za-z0-9+/]+=*( [^\n]*)?$'}
               spot:         {type: boolean, default: false}
               stopped:      {type: boolean, default: false}
               restart:      {type: integer, default: 0, minimum: 0}
