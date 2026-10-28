@@ -7,7 +7,7 @@ metadata:
 spec:
   project: karmada-test
   destination: {name: tech-neo-karmada}
-  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: karmada-argocd-test, path: karmada/tests/webhook-f2}
+  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: main, path: karmada/tests/webhook-f2}
   syncPolicy:
     automated: {selfHeal: true, prune: true}
     syncOptions: [ServerSideApply=true]

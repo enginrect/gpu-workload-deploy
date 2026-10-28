@@ -1,4 +1,4 @@
-# Karmada 경로 (branch karmada-argocd-test)
+# Karmada 경로 (main — 2026-10-28 karmada-argocd-test 머지)
 
 multi-region · multi-cluster 구조에서 telox 몫 가운데 컨트롤러 · webhook이 없고 agent에 cluster-admin급 권한을 요구하지 않는 것(SKU · Domain + domain namespace · Domain 전개 오브젝트 · Instance · 노출 · project Gateway)을
 Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)PropagationPolicy → wkld 멤버 경로로 배포하는 디렉터리.

@@ -17,7 +17,7 @@ spec:
       releaseName: gateway-crds
       valueFiles: [$values/platform/values/gateway-crds.yaml]
   - repoURL: https://github.com/enginrect/gpu-workload-deploy.git
-    targetRevision: karmada-argocd-test   # main 머지 때 main
+    targetRevision: main
     ref: values
   syncPolicy:
     automated: {selfHeal: true, prune: true}

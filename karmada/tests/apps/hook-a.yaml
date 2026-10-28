@@ -7,7 +7,7 @@ metadata:
 spec:
   project: karmada-test
   destination: {name: tech-neo-karmada, namespace: karmada-hook-a}   # CreateNamespace는 destination.namespace를 만든다
-  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: karmada-argocd-test, path: karmada/tests/hook-a}
+  source: {repoURL: https://github.com/enginrect/gpu-workload-deploy.git, targetRevision: main, path: karmada/tests/hook-a}
   syncPolicy:
     automated: {selfHeal: true, prune: true}
     syncOptions: [ServerSideApply=true, CreateNamespace=true]

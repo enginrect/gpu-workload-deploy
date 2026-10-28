@@ -17,7 +17,7 @@ spec:
       project: default
       source:
         repoURL: https://github.com/enginrect/gpu-workload-deploy.git
-        targetRevision: karmada-argocd-test
+        targetRevision: main
         path: apps-chart
         helm:
           parameters:

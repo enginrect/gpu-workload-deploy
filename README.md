@@ -209,7 +209,7 @@ sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 - 우연에 기대지 않도록 둘을 고정: hub argocd-cm에 `nvidia.com/ClusterPolicy` health check(state ready → Healthy, 아니면 Progressing)를 추가해 gpu-operator Application이 driver 스택 준비 뒤에만 Healthy가 되게 했고, `apps/ndra.yaml`을 wave 5로 내렸다. 이제 root는 driver ready 뒤에 ndra를 만든다.
 - driver pod가 **재생성**될 때 plugin을 재시작해야 하는 규칙은 별도(설계 Appendix) — GitOps 순서와 무관하게 gpu-operator 업그레이드 절차에서 지킬 것.
 
-## wkld 클러스터 추가(멀티 클러스터) — 브랜치 karmada-argocd-test
+## wkld 클러스터 추가(멀티 클러스터) — main(2026-10-28 karmada-argocd-test 머지)
 
 1. 등록 — `karmadactl register … --cluster-name <name> --cluster-region <region> --cluster-provider openstack --cluster-zones <zone>` (worker에 taint가 있으면 agent Deployment toleration patch)
 2. 직접 경로 — Argo cluster Secret에 label `telox.io/role=wkld` · `telox.io/region=<region>` · `telox.io/gpu=true|false`(false면 gpu-operator · ndra · nri-topo 생략) + AppProject `telox-platform` destinations에 이름 추가 → `bootstrap/applicationset.yaml`(cluster generator)이 `telox-platform-<name>` root Application을 만들고 `apps-chart/`를 렌더(Application 이름 접두사 = 클러스터 이름)
