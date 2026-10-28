@@ -1,0 +1,51 @@
+# karmada-agent ClusterRole — karmadactl register가 만든 `*/*/*`를 Karmada 경로 kind로 좁힘(직접 경로 이행 뒤). Argo가 같은 이름을 채택(SSA).
+# 읽기 고정 세트(agent 자체 동작) + Karmada 경로로 전파하는 kind의 CRUD. Pod · Secret · CRD · ClusterRole/Binding · Kyverno 정책 · Deployment 없음 — escalate 없음, bind는 Domain 전개 RoleBinding이 참조하는 ClusterRole 2개만.
+# 울타리(VAP 40-karmada-agent-scope-vap.yaml)와 짝: RBAC이 kind를, VAP가 namespace · roleRef를 제한. 전파 kind를 더하면 여기와 VAP resourceRules를 같이 고칠 것. install.md §19
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: karmada-agent}
+rules:
+- apiGroups: [""]
+  resources: [nodes, pods]
+  verbs: [get, list, watch]
+- nonResourceURLs: ["/readyz", "/healthz", "/version", "/version/*", "/api", "/api/*", "/apis", "/apis/*"]
+  verbs: [get]
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  verbs: [get, list, watch, create, update]
+- apiGroups: [""]
+  resources: [events]
+  verbs: [create, patch, update]
+# --- Domain 전개(Karmada 경로): namespace · RoleBinding · ResourceQuota · default-deny · LB pool
+- apiGroups: [""]
+  resources: [namespaces, resourcequotas]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [rbac.authorization.k8s.io]
+  resources: [rolebindings]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [rbac.authorization.k8s.io]
+  resources: [clusterroles]
+  resourceNames: ["telox:domain-member", "telox:telox-broker-exec"]
+  verbs: [bind]
+- apiGroups: [networking.k8s.io]
+  resources: [networkpolicies]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [cilium.io]
+  resources: [ciliumloadbalancerippools]
+  verbs: [get, list, watch, create, update, patch, delete]
+# --- telox 오브젝트 · Instance 노출(Karmada 경로)
+- apiGroups: [telox.io]
+  resources: [domains, skus, instances, serverlessinstances]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [""]
+  resources: [services]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [policy]
+  resources: [poddisruptionbudgets]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [gateway.networking.k8s.io]
+  resources: [gateways, httproutes, listenersets, tcproutes]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [gateway.envoyproxy.io]
+  resources: [envoyproxies]
+  verbs: [get, list, watch, create, update, patch, delete]

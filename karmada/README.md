@@ -1,19 +1,18 @@
 # Karmada 경로 (branch karmada-argocd-test)
 
-multi-region · multi-cluster 구조에서 telox 몫(CRD · ns telox-system · SA · RBAC · Kyverno 정책 · SKU · Domain · Instance)을
+multi-region · multi-cluster 구조에서 telox 몫 가운데 컨트롤러 · webhook이 없고 agent에 cluster-admin급 권한을 요구하지 않는 것(SKU · Domain + domain namespace · Domain 전개 오브젝트 · Instance · 노출 · project Gateway)을
 Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)PropagationPolicy → wkld 멤버 경로로 배포하는 디렉터리.
-플랫폼(gpu-operator · Kyverno chart · DRA · nri · Envoy Gateway · ExternalDNS · Cilium 정책 · 플랫폼 RBAC)은 `apps/` + `platform/`의 직접 배포 경로(클러스터마다 Application).
+플랫폼(gpu-operator · Kyverno chart · DRA · nri · Envoy Gateway · ExternalDNS · Cilium 정책 · 플랫폼 RBAC)과 **telox CRD · ns telox-system · SA · ClusterRole/Binding · Kyverno 정책 · SSH gateway**는 `apps/` + `platform/`의 직접 배포 경로(클러스터마다 Application) — CRD · ClusterRole · 정책 · Deployment는 agent에 escalate · bind · cluster-admin급 권한을 요구하므로 Karmada 경로에서 뺌(직접 경로 이행, install.md §19).
 
 ## 구조
 
 - `bootstrap/` — hub 쪽 1회 적용(손으로 apply): AppProject karmada-test + karmada-apiserver용 CRD 묶음(Gateway API chart 재사용 · Kyverno 렌더 그대로). Karmada 설치와 같은 층, root 밖 → CRD 변경은 CR 커밋보다 먼저. cluster Secret은 인증서가 들어가므로 리포 밖
 - `root.yaml` → `apps/` — app-of-apps
-  - wave 0 `telox-crds/`(telox CRD 4종 + CPP — 상품과 같이 바뀌므로 root 안) · `interpreter/`(RIC 9종)
-  - wave 1 `system-rbac/`(ns telox-system + SA + ClusterRole/Binding + Kyverno aggregated ClusterRole + CPP)
-  - wave 2 `kyverno-policies/`(telox 정책 8 + CPP)
+  - wave 0 `crds.yaml` → `platform/telox-crds/`(telox CRD 4종을 karmada-apiserver에 저장만 — template 수신용. 멤버 CRD는 직접 경로의 같은 파일) · `interpreter/`(RIC 9종)
+  - (이행됨) ns telox-system · SA · ClusterRole/Binding · Kyverno 정책 · SSH gateway → `platform/telox-rbac/` · `platform/kyverno-policies/` · `platform/ssh-gateway/`(직접 경로)
   - wave 3 `sku/` → 4 `domain-c/`(ns · Domain · CPP + `gateway-<project>.yaml` = project별 EnvoyProxy ep-dev · Gateway gw-dev · PP) → 5 `instances/`(Instance + Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute, PP 하나)
 - 전파 범위
-  - 모든 wkld 멤버(`clusterAffinity.labelSelector telox.io/role=wkld`) — CRD · RBAC · 정책 · SKU
+  - 모든 wkld 멤버(`clusterAffinity.labelSelector telox.io/role=wkld`) — SKU
   - domain이 걸치는 클러스터들(`clusterNames`, 클러스터별 값은 ClusterOverridePolicy) — Domain + domain namespace. Instance는 라벨 `telox.io/region`의 PropagationPolicy(labelSelector + region fieldSelector)가 그 리전의 클러스터 하나로(`instances-d/pp-regions.yaml`)
   - 멤버 Cluster 오브젝트에 `spec.region` · `spec.provider` · `spec.zones` + label `telox.io/role` · `telox.io/region`
 - `tests/` — 개별 확인용(namespace 자동 전파 · hook Job · webhook 전파 · CRD+CR 동시)
