@@ -7,7 +7,7 @@ spec:
   resourceSelectors:   # namespace는 Karmada webhook default — 생략하면 Argo SSA diff가 OutOfSync
   - {apiVersion: telox.io/v1alpha1, kind: Instance, namespace: domain-c}
   - {apiVersion: v1, kind: Service, namespace: domain-c}
-  - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-c}
+  - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-c, labelSelector: {matchExpressions: [{key: telox.io/domain, operator: DoesNotExist}]}}   # Domain 전개의 default-deny(label telox.io/domain)는 PP domain-objects 몫 — kind-only selector가 먼저 claim하면 재매칭 안 됨(§3.18 함정)
   - {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute, namespace: domain-c}
   - {apiVersion: gateway.networking.k8s.io/v1, kind: ListenerSet, namespace: domain-c}
   - {apiVersion: gateway.networking.k8s.io/v1, kind: TCPRoute, namespace: domain-c}

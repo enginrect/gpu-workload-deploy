@@ -6,7 +6,7 @@ spec:
   resourceSelectors:
   - {apiVersion: telox.io/v1alpha1, kind: Instance, namespace: domain-d}
   - {apiVersion: v1, kind: Service, namespace: domain-d}
-  - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-d}
+  - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-d, labelSelector: {matchExpressions: [{key: telox.io/domain, operator: DoesNotExist}]}}   # Domain 전개의 default-deny(label telox.io/domain)는 PP domain-objects 몫 — kind-only selector가 먼저 claim하면 재매칭 안 됨(§3.18 함정)
   - {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute, namespace: domain-d}
   - {apiVersion: gateway.networking.k8s.io/v1, kind: ListenerSet, namespace: domain-d}
   - {apiVersion: gateway.networking.k8s.io/v1, kind: TCPRoute, namespace: domain-d}
