@@ -1,6 +1,6 @@
 # karmada-agent 범위 울타리 — Kubernetes ValidatingAdmissionPolicy(내장 CEL admission). 직접 경로(플랫폼)에 둠:
 # agent가 나르는 Karmada 경로에 두면 Controlplane 탈취 때 같이 지워질 수 있고, Kyverno 정책은 보고용 read 권한이 따로 필요함.
-# 정책 2개 — ① agent 신원은 domain namespace(label telox.io/domain) · telox-system · karmada-system에만 ② RoleBinding은 telox ClusterRole 2개만 참조
+# 정책 2개 — ① agent 신원은 domain namespace(label telox.io/domain) · telox-system · karmada-system · karmada-cluster(impersonator SA)에만 ② RoleBinding은 telox ClusterRole 2개만 참조
 # (kind마다 다른 필드를 보는 식은 정책을 나눠야 typeChecking 경고가 없음)
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicy
@@ -22,7 +22,7 @@ spec:
   - name: karmada-agent
     expression: "request.userInfo.username == 'system:serviceaccount:karmada-system:karmada-agent-sa'"
   validations:
-  - expression: "request.namespace in ['telox-system', 'karmada-system'] || (namespaceObject != null && has(namespaceObject.metadata.labels) && 'telox.io/domain' in namespaceObject.metadata.labels)"
+  - expression: "request.namespace in ['telox-system', 'karmada-system', 'karmada-cluster'] || (namespaceObject != null && has(namespaceObject.metadata.labels) && 'telox.io/domain' in namespaceObject.metadata.labels)"
     messageExpression: "'karmada-agent may only write into domain namespaces or telox-system: ' + request.namespace"
     reason: Forbidden
 ---

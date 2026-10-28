@@ -1,0 +1,16 @@
+# karmada-agent 기동 전제 — agent는 시작할 때 멤버의 karmada-cluster/karmada-impersonator ServiceAccount와 토큰 Secret을 확인(없으면 생성)하고 Controlplane의 Cluster.spec.impersonatorSecretRef로 보고함.
+# 50-karmada-agent-clusterrole.yaml(좁힌 ClusterRole)에 SA · Secret 권한이 없어 agent 재시작 때 "failed to check if service account exist … forbidden"으로 CrashLoop(install.md §21에서 발견). karmada-cluster namespace 한정 Role로 허용.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: karmada-agent-impersonator, namespace: karmada-cluster}
+rules:
+- apiGroups: [""]
+  resources: [serviceaccounts, secrets]
+  verbs: [get, create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: karmada-agent-impersonator, namespace: karmada-cluster}
+subjects:
+- {kind: ServiceAccount, name: karmada-agent-sa, namespace: karmada-system}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: karmada-agent-impersonator}
