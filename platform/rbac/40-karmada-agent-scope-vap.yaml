@@ -1,0 +1,37 @@
+# karmada-agent 범위 울타리 — Kubernetes ValidatingAdmissionPolicy(내장 CEL admission). 직접 경로(플랫폼)에 둠:
+# agent가 나르는 Karmada 경로에 두면 Controlplane 탈취 때 같이 지워질 수 있고, Kyverno 정책은 보고용 read 권한이 따로 필요함.
+# 규칙: agent 신원은 domain namespace(label telox.io/domain) · telox-system · karmada-system에만 쓸 수 있고, RoleBinding은 telox ClusterRole 2개만 참조
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: telox-agent-scope
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - {apiGroups: [""], apiVersions: [v1], operations: [CREATE, UPDATE], resources: [services, configmaps, resourcequotas, serviceaccounts]}
+    - {apiGroups: [rbac.authorization.k8s.io], apiVersions: [v1], operations: [CREATE, UPDATE], resources: [rolebindings, roles]}
+    - {apiGroups: [networking.k8s.io], apiVersions: [v1], operations: [CREATE, UPDATE], resources: [networkpolicies]}
+    - {apiGroups: [policy], apiVersions: [v1], operations: [CREATE, UPDATE], resources: [poddisruptionbudgets]}
+    - {apiGroups: [telox.io], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: [instances, serverlessinstances]}
+    - {apiGroups: [gateway.networking.k8s.io], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: [gateways, httproutes, tcproutes, listenersets]}
+    - {apiGroups: [gateway.envoyproxy.io], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: [envoyproxies]}
+    - {apiGroups: [apps], apiVersions: [v1], operations: [CREATE, UPDATE], resources: [deployments]}
+  matchConditions:
+  - name: karmada-agent
+    expression: "request.userInfo.username == 'system:serviceaccount:karmada-system:karmada-agent-sa'"
+  validations:
+  - expression: "request.namespace in ['telox-system', 'karmada-system'] || (namespaceObject != null && has(namespaceObject.metadata.labels) && 'telox.io/domain' in namespaceObject.metadata.labels)"
+    messageExpression: "'karmada-agent may only write into domain namespaces or telox-system: ' + request.namespace"
+    reason: Forbidden
+  - expression: "request.resource.resource != 'rolebindings' || object.roleRef.name in ['telox:domain-member', 'telox:telox-broker-exec']"
+    message: "karmada-agent may only bind telox:domain-member or telox:telox-broker-exec"
+    reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: telox-agent-scope
+spec:
+  policyName: telox-agent-scope
+  validationActions: [Deny]
