@@ -16,6 +16,10 @@ rules:
 - apiGroups: [""]
   resources: [events]
   verbs: [create, patch, update]
+# --- 기동 전제(install.md §21): agent는 시작할 때 멤버의 ClusterRole · ClusterRoleBinding `karmada-controller-manager:karmada-<cluster>` · `karmada-impersonator` 존재를 확인함(없으면 생성 — 생성은 register의 `*` 단계 몫). 이름에 클러스터명이 들어가 resourceNames로 못 묶으므로 읽기만 허용. SA · Secret은 56-karmada-agent-impersonator-rbac.yaml(karmada-cluster Role)
+- apiGroups: [rbac.authorization.k8s.io]
+  resources: [clusterroles, clusterrolebindings]
+  verbs: [get]
 # --- Domain 전개(Karmada 경로): namespace · RoleBinding · ResourceQuota · default-deny · LB pool
 - apiGroups: [""]
   resources: [namespaces, resourcequotas]
