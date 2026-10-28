@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: telox-ssh-gateway
+  namespace: telox-system
+  labels: {app: telox-ssh-gateway, telox.io/component: ssh-gateway}
+  annotations:
+    external-dns.kubernetes.io/hostname: {{ required "hostname is required ({region}-{cluster id}.<base domain>)" .Values.hostname }}   # ExternalDNS 0.23 prefix(legacy alpha prefix는 기본 off)
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector: {app: telox-ssh-gateway}
+  ports: [{name: ssh, port: 22, targetPort: 22, protocol: TCP}]

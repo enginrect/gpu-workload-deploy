@@ -1,0 +1,32 @@
+# wave 6 — 기본 SSH 입구 대역(클러스터마다 1): sshd gateway + SA telox-broker exec. 주소는 hostname 매개변수({region}-{kube-system uid 5자}.<base domain>), region-1은 전용 LB 풀. 키는 Instance spec.authorizedKeys
+# hostname · pool은 cluster Secret label telox.io/ssh-host · annotation telox.io/ssh-pool → ApplicationSet 매개변수
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-ssh-gateway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: karmada-argocd-test   # 테스트 브랜치 한정 — main 머지 때 main으로
+    path: platform/ssh-gateway
+    helm:
+      parameters:
+      - {name: hostname, value: {{ required "sshHost (cluster Secret label telox.io/ssh-host)" .Values.sshHost | quote }}}
+      - {name: pool.cidr, value: {{ .Values.sshPool | quote }}}
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

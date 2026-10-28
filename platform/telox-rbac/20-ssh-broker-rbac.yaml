@@ -1,0 +1,39 @@
+# 기본 SSH — telox-broker(exec 브리지) identity. 클러스터 범위는 읽기(Instance · Pod)뿐, pods/exec는 domain namespace마다 RoleBinding telox-broker-exec(Domain 전개, Karmada 경로)로만. install.md §15 · §18
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: telox-broker
+  namespace: telox-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: telox:telox-broker
+rules:
+- apiGroups: [""]
+  resources: [pods]
+  verbs: [get, list, watch]
+- apiGroups: [telox.io]
+  resources: [instances]
+  verbs: [get, list, watch]
+---
+# domain namespace RoleBinding의 roleRef — ClusterRoleBinding으로 묶지 않음(kube-system exec 차단은 RBAC namespace 경계가 담당)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: telox:telox-broker-exec
+rules:
+- apiGroups: [""]
+  resources: [pods]
+  verbs: [get]
+- apiGroups: [""]
+  resources: [pods/exec]
+  verbs: [create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: telox:telox-broker
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: "telox:telox-broker"}
+subjects:
+- {kind: ServiceAccount, name: telox-broker, namespace: telox-system}

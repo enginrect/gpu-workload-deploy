@@ -1,4 +1,4 @@
-# wave 1 — 플랫폼 구성 요소용 RBAC(dcgm-exporter DRA 읽기). telox SA · RBAC · ns telox-system은 Karmada 경로(karmada/system-rbac)
+# wave 1 — 플랫폼 구성 요소용 RBAC(dcgm-exporter DRA 읽기) + karmada-agent 울타리(VAP) · agent ClusterRole. telox SA · RBAC · ns telox-system은 apps/telox-rbac.yaml(직접 경로)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

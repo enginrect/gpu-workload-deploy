@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telox-ssh-gateway
+  namespace: telox-system
+  labels: {app: telox-ssh-gateway, telox.io/component: ssh-gateway}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: telox-ssh-gateway}}
+  template:
+    metadata:
+      labels: {app: telox-ssh-gateway, telox.io/component: ssh-gateway}
+    spec:
+      serviceAccountName: telox-broker
+      nodeSelector: {{ toJson .Values.nodeSelector }}
+      tolerations: {{ toJson .Values.tolerations }}
+      containers:
+      - name: sshd
+        image: {{ .Values.image }}
+        command: [/bin/sh, /opt/telox-src/entrypoint.sh]
+        ports: [{name: ssh, containerPort: 22, protocol: TCP}]
+        readinessProbe: {tcpSocket: {port: 22}, initialDelaySeconds: 5, periodSeconds: 10}
+        resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {memory: 256Mi}}
+        volumeMounts:
+        - {name: scripts, mountPath: /opt/telox-src, readOnly: true}
+      volumes:
+      - {name: scripts, configMap: {name: telox-ssh-gateway-scripts, defaultMode: 0555}}

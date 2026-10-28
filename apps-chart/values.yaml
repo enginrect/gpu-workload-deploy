@@ -1,3 +1,5 @@
 # ApplicationSet이 cluster Secret에서 채움
 cluster: tech-neo-wkld   # Argo CD cluster 이름 = Application 이름 접두사 · destination.name
 gpu: true                 # false면 GPU 전용 Application(gpu-operator · ndra · nri-topo) 생략. deviceclass는 모든 wkld(telox-sku 정책이 DeviceClass 존재를 검사) — cluster Secret label telox.io/gpu
+sshHost: ""              # SSH gateway 주소 {region}-{kube-system uid 5자}.<base domain> — cluster Secret label telox.io/ssh-host
+sshPool: ""              # SSH gateway 전용 LB 풀 cidr(비우면 default-pool) — cluster Secret annotation telox.io/ssh-pool

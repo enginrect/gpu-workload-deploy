@@ -1,0 +1,119 @@
+# telox 시스템 identity — 직접 경로(Argo CD → 멤버, 클러스터마다). ClusterRole · ClusterRoleBinding은 agent에 escalate · bind를 요구하므로 Karmada 경로에 두지 않음.
+# domain namespace의 RoleBinding(telox-domain-member · telox-broker-exec)은 Domain 전개(Karmada 경로)가 만듦 — agent는 이 두 ClusterRole에만 bind(resourceNames)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: telox-system
+  labels:
+    telox.io/role: gateway   # ServerlessInstance worker의 NetworkPolicy가 이 label의 namespace에서만 ingress 허용(telox-gateway 위치)
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: telox-worker, namespace: telox-system}
+---
+# 1단계 백엔드 kubeconfig identity — telox-manager(mgmt)가 이 SA 토큰으로 wkld apiserver에 접근. admin kubeconfig 아님.
+# 권한 = ClusterRole telox:ops-backend(Domain · SKU · 재고 읽기) + domain namespace마다 RoleBinding telox-domain-member(Instance · Secret, Domain 전개가 바인딩)
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: telox-manager, namespace: telox-system}
+---
+# 고객 group domain-<id>:member에 주는 권한 — 내용은 GitOps, 바인딩은 Domain 전개(Karmada 경로, namespace 단위 RoleBinding)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: "telox:domain-member"}
+rules:
+- apiGroups: [telox.io]
+  resources: [instances, serverlessinstances]        # serverlessinstances/scale 없음 — worker 수는 gateway만
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [""]
+  resources: [secrets]
+  verbs: [get, list, watch, create, update, patch, delete]
+---
+# serverless gateway — 요청 라우팅 · autoscaler. ServerlessInstance는 읽기 + scale 서브리소스만, Pod · Service · EndpointSlice 읽기
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: telox-gateway, namespace: telox-system}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: "telox:telox-gateway"}
+rules:
+- apiGroups: [telox.io]
+  resources: [serverlessinstances]
+  verbs: [get, list, watch]
+- apiGroups: [telox.io]
+  resources: [serverlessinstances/scale]
+  verbs: [get, update, patch]
+- apiGroups: [""]
+  resources: [services, pods]
+  verbs: [get, list, watch]
+- apiGroups: [discovery.k8s.io]
+  resources: [endpointslices]
+  verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: "telox:telox-gateway"}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: "telox:telox-gateway"}
+subjects:
+- {kind: ServiceAccount, name: telox-gateway, namespace: telox-system}
+---
+# 운영 identity — 클러스터 범위 쓰기는 Domain · SKU 오브젝트뿐. Namespace 쓰기 없음(Domain 전개 몫). Instance · Secret은 1단계에 한해 domain namespace RoleBinding으로(위 SA 주석)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: "telox:ops-backend"}
+rules:
+- apiGroups: [telox.io]
+  resources: [domains]
+  verbs: [create, update, patch, delete, get, list, watch]
+- apiGroups: [telox.io]
+  resources: [skus]
+  verbs: [create, delete, get, list, watch]
+- apiGroups: [""]
+  resources: [nodes]
+  verbs: [get, list, watch]
+- apiGroups: [resource.k8s.io]
+  resources: [resourceslices, resourceclaims, deviceclasses]
+  verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: "telox:ops-backend"}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: "telox:ops-backend"}
+subjects:
+- {kind: Group, name: "ops:backend", apiGroup: rbac.authorization.k8s.io}          # Keycloak client credentials(Identity §1)
+- {kind: ServiceAccount, name: telox-manager, namespace: telox-system}   # 1단계 kubeconfig
+---
+# worker SA — 얇은 worker(분담 재편): Instance → Pod · ResourceClaim · PVC · status, ServerlessInstance → worker Pod · ResourceClaim · ClusterIP Service · NetworkPolicy. Domain 전개(Namespace · RoleBinding · ResourceQuota · default-deny · LB pool)와 Instance의 Service · PDB는 Karmada 경로라 권한 없음. 삭제는 GC(ownerReference)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: {name: "telox:telox-worker"}
+rules:
+- apiGroups: [""]
+  resources: [pods, persistentvolumeclaims, services]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [resource.k8s.io]
+  resources: [resourceclaims]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [resource.k8s.io]
+  resources: [resourceslices, deviceclasses]
+  verbs: [get, list, watch]
+- apiGroups: [networking.k8s.io]
+  resources: [networkpolicies]
+  verbs: [get, list, watch, create, update, patch, delete]
+- apiGroups: [telox.io]
+  resources: [instances, serverlessinstances, skus, domains]
+  verbs: [get, list, watch]
+- apiGroups: [telox.io]
+  resources: [instances/status, serverlessinstances/status, domains/status]
+  verbs: [get, update, patch]
+- apiGroups: [""]
+  resources: [nodes]
+  verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: {name: "telox:telox-worker"}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: "telox:telox-worker"}
+subjects:
+- {kind: ServiceAccount, name: telox-worker, namespace: telox-system}

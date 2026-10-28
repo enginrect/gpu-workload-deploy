@@ -1,0 +1,6 @@
+apiVersion: v2
+name: telox-ssh-gateway
+description: 기본 SSH 입구 대역(stand-in) — OpenSSH sshd가 SSH gateway(telox-proxy) 역할, kubectl exec + SA telox-broker가 broker 역할. 클러스터마다 1개, 주소는 values.hostname(ExternalDNS service source). 키는 Instance spec.authorizedKeys에서 로그인마다 읽음(install.md §15 · §18)
+type: application
+version: 0.1.0
+appVersion: "stand-in"

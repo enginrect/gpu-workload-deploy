@@ -1,0 +1,9 @@
+# 클러스터별 값은 Application helm parameters(apps/ssh-gateway.yaml · apps-chart ssh-gateway.yaml)에서
+hostname: ""                        # 필수 — {region}-{kube-system uid 5자}.<base domain>, ExternalDNS A 레코드
+image: docker.io/library/alpine:3.22
+nodeSelector: {node-restriction.kubernetes.io/pool: gpu}   # L2 announce 후보 노드와 같은 노드(eTP Local)
+tolerations:
+- {key: node-restriction.kubernetes.io/pool, operator: Equal, value: gpu, effect: NoSchedule}
+pool:
+  name: telox-ssh
+  cidr: ""                          # 비우면 pool을 만들지 않음(default-pool 사용). region-1은 10.7.56.80/29

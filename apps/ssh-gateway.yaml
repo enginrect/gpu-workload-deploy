@@ -1,0 +1,31 @@
+# wave 6 — 기본 SSH 입구 대역(클러스터마다 1): sshd gateway + SA telox-broker exec. 주소는 hostname 매개변수({region}-{kube-system uid 5자}.<base domain>), region-1은 전용 LB 풀. 키는 Instance spec.authorizedKeys
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ssh-gateway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: tech-neo-wkld
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: karmada-argocd-test   # 테스트 브랜치 한정 — main 머지 때 main으로
+    path: platform/ssh-gateway
+    helm:
+      parameters:
+      - {name: hostname, value: "r1-6d905.neo.test"}
+      - {name: pool.cidr, value: "10.7.56.80/29"}
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

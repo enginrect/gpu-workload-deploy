@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telox-ssh-gateway-scripts
+  namespace: telox-system
+data:
+{{- range $name, $_ := .Files.Glob "files/*.sh" }}
+  {{ base $name }}: |
+{{ $.Files.Get $name | indent 4 }}
+{{- end }}

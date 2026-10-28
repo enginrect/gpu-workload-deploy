@@ -1,0 +1,27 @@
+# wave 0 — telox CRD 4종(직접 경로). Controlplane(karmada-apiserver)에도 같은 파일을 karmada/apps/crds.yaml이 저장. CRD는 agent에 cluster-admin급 권한을 요구하므로 Karmada 경로로 전파하지 않음. prune false — CRD 삭제 = CR 전부 삭제
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-telox-crds
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: karmada-argocd-test   # 테스트 브랜치 한정 — main 머지 때 main으로
+    path: platform/telox-crds
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

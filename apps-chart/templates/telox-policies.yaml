@@ -1,0 +1,27 @@
+# wave 3 — telox Kyverno 정책(ValidatingPolicy 8 · ClusterPolicy 1), Kyverno chart(wave 2) 뒤. Controlplane 탈취 때 같이 지워지지 않도록 직접 경로(agent 울타리 VAP와 같은 이유)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-telox-policies
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: karmada-argocd-test   # 테스트 브랜치 한정 — main 머지 때 main으로
+    path: platform/kyverno-policies
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

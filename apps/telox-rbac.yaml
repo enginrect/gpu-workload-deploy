@@ -1,0 +1,27 @@
+# wave 1 — ns telox-system · telox SA · ClusterRole/Binding(telox:* · kyverno:telox-read · telox-broker). ClusterRole · CRB는 agent에 escalate · bind를 요구하므로 직접 경로. domain namespace RoleBinding은 Domain 전개(Karmada 경로)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: telox-rbac
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: tech-neo-wkld
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: karmada-argocd-test   # 테스트 브랜치 한정 — main 머지 때 main으로
+    path: platform/telox-rbac
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

@@ -1,0 +1,25 @@
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: telox-ssh-exec
+spec:
+  evaluation:
+    background: {enabled: false}
+  matchConditions:
+  - name: broker-sa
+    expression: request.userInfo.username == 'system:serviceaccount:telox-system:telox-broker'
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: [v1]
+      operations: [CONNECT]
+      resources: [pods/exec]
+  variables:
+  - name: pod
+    expression: dyn(resource.Get('v1', 'pods', request.namespace, request.name))
+  validationActions: [Deny]
+  validations:
+  - expression: has(variables.pod.metadata.labels) && 'telox.io/instance' in variables.pod.metadata.labels && variables.pod.metadata.labels['telox.io/instance'] == request.name
+    messageExpression: "'telox-broker may only exec into Instance pods: ' + request.namespace + '/' + request.name"
+  - expression: has(object.container) && object.container == 'main'
+    message: telox-broker may only exec into the Instance container 'main'

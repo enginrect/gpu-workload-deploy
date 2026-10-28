@@ -23,6 +23,8 @@ spec:
           parameters:
           - {name: cluster, value: '{{ .name }}'}
           - {name: gpu, value: '{{ index .metadata.labels "telox.io/gpu" | default "true" }}'}
+          - {name: sshHost, value: '{{ index .metadata.labels "telox.io/ssh-host" | default "" }}'}   # SSH gateway 주소(등록 때 label)
+          - {name: sshPool, value: '{{ index .metadata.annotations "telox.io/ssh-pool" | default "" }}'}   # SSH gateway 전용 풀(선택)
       destination: {server: https://kubernetes.default.svc, namespace: argocd}
       syncPolicy:
         automated: {selfHeal: true, prune: false}
