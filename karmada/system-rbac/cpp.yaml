@@ -5,6 +5,7 @@ kind: ClusterPropagationPolicy
 metadata: {name: telox-system-rbac}
 spec:
   conflictResolution: Overwrite
+  preserveResourcesOnDeletion: true   # 직접 경로 이행 — template을 지워도 멤버 오브젝트는 남김(Argo 직접 경로가 채택)
   resourceSelectors:
   - {apiVersion: v1, kind: Namespace, name: telox-system}
   - {apiVersion: v1, kind: ServiceAccount, namespace: telox-system}

@@ -6,6 +6,7 @@ kind: ClusterPropagationPolicy
 metadata: {name: telox-kyverno-policies}
 spec:
   conflictResolution: Overwrite
+  preserveResourcesOnDeletion: true   # 직접 경로 이행 — template을 지워도 멤버 오브젝트는 남김(Argo 직접 경로가 채택)
   resourceSelectors:
   - {apiVersion: policies.kyverno.io/v1, kind: ValidatingPolicy}
   - {apiVersion: kyverno.io/v1, kind: ClusterPolicy}
