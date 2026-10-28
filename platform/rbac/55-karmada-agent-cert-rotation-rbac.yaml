@@ -1,0 +1,18 @@
+# karmada-agent 인증서 자동 갱신(agent `certRotation` 컨트롤러, `--controllers=*,certRotation`)용.
+# 갱신 컨트롤러는 Controlplane에 CSR을 내고(agent ClusterRole에 csr create · get 있음) 서명된 인증서를 멤버의 secret karmada-kubeconfig에 덮어씀(get · update).
+# 50-karmada-agent-clusterrole.yaml에는 Secret 권한이 없으므로 karmada-system의 이 secret 하나에만 Role로 허용. VAP 울타리(40)는 secrets를 보지 않음. install.md §21
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: karmada-agent-cert-rotation, namespace: karmada-system}
+rules:
+- apiGroups: [""]
+  resources: [secrets]
+  resourceNames: [karmada-kubeconfig]
+  verbs: [get, update, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: karmada-agent-cert-rotation, namespace: karmada-system}
+subjects:
+- {kind: ServiceAccount, name: karmada-agent-sa, namespace: karmada-system}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: karmada-agent-cert-rotation}
