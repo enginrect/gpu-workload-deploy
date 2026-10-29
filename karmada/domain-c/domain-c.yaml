@@ -19,7 +19,7 @@ spec:
   maxInstances: 4
   lbPool: {cidrs: [10.7.56.88/29]}
 ---
-# domain LB 대역 = Domain spec.lbPool과 같은 값(예전 telox-worker가 만들던 pool, Overwrite로 채택). pool CRD는 Controlplane bootstrap(karmada/bootstrap/crds/cilium)
+# domain LB 대역 = Domain spec.lbPool과 같은 값(예전 telox-instance-worker가 만들던 pool, Overwrite로 채택). pool CRD는 Controlplane bootstrap(karmada/bootstrap/crds/cilium)
 apiVersion: cilium.io/v2
 kind: CiliumLoadBalancerIPPool
 metadata: {name: domain-c, labels: {telox.io/domain: c}}

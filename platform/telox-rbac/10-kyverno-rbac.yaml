@@ -1,4 +1,4 @@
-# Kyverno 컨트롤러가 정책에서 읽는 리소스 — aggregated ClusterRole (admission · reports · background). generate 없음 — namespace 안 오브젝트는 Domain reconcile(telox-worker)
+# Kyverno 컨트롤러가 정책에서 읽는 리소스 — aggregated ClusterRole (admission · reports · background). generate 없음 — namespace 안 오브젝트는 Domain reconcile(telox-instance-worker)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:

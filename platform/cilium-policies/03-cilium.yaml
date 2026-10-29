@@ -1,5 +1,5 @@
 # Network §2 — Instance Pod 클러스터 안 egress 차단(cluster · host · apiserver · 링크로컬 · 사내 10.7/16), world만 허용
-# LB IP pool은 domain 단위 — Domain CR spec.lbPool에서 telox-worker가 CiliumLoadBalancerIPPool 생성 (20-domains.yaml)
+# LB IP pool은 domain 단위 — Domain CR spec.lbPool에서 telox-instance-worker가 CiliumLoadBalancerIPPool 생성 (20-domains.yaml)
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
 metadata: {name: instance-egress}

@@ -9,7 +9,7 @@ metadata:
 ---
 apiVersion: v1
 kind: ServiceAccount
-metadata: {name: telox-worker, namespace: telox-system}
+metadata: {name: telox-instance-worker, namespace: telox-system}
 ---
 # 1단계 백엔드 kubeconfig identity — telox-manager(mgmt)가 이 SA 토큰으로 wkld apiserver에 접근. admin kubeconfig 아님.
 # 권한 = ClusterRole telox:ops-backend(Domain · SKU · 재고 읽기) + domain namespace마다 RoleBinding telox-domain-member(Instance · Secret, Domain 전개가 바인딩)
@@ -87,7 +87,7 @@ subjects:
 # worker SA — 얇은 worker(분담 재편): Instance → Pod · ResourceClaim · PVC · status, ServerlessInstance → worker Pod · ResourceClaim · ClusterIP Service · NetworkPolicy. Domain 전개(Namespace · RoleBinding · ResourceQuota · default-deny · LB pool)와 Instance의 Service · PDB는 Karmada 경로라 권한 없음. 삭제는 GC(ownerReference)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
-metadata: {name: "telox:telox-worker"}
+metadata: {name: "telox:telox-instance-worker"}
 rules:
 - apiGroups: [""]
   resources: [pods, persistentvolumeclaims, services]
@@ -113,7 +113,7 @@ rules:
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
-metadata: {name: "telox:telox-worker"}
-roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: "telox:telox-worker"}
+metadata: {name: "telox:telox-instance-worker"}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: "telox:telox-instance-worker"}
 subjects:
-- {kind: ServiceAccount, name: telox-worker, namespace: telox-system}
+- {kind: ServiceAccount, name: telox-instance-worker, namespace: telox-system}

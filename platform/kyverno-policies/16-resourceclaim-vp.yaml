@@ -1,7 +1,7 @@
-# Placement §3 validate — telox-worker SA가 만드는 ResourceClaim
+# Placement §3 validate — telox-instance-worker SA가 만드는 ResourceClaim
 apiVersion: policies.kyverno.io/v1
 kind: ValidatingPolicy
-metadata: {name: telox-worker-resourceclaim}
+metadata: {name: telox-instance-worker-resourceclaim}
 spec:
   validationActions: [Deny]
   evaluation:
@@ -22,8 +22,8 @@ spec:
   - name: serverless
     expression: "dyn(resource.List('telox.io/v1alpha1', 'serverlessinstances', object.metadata.namespace)).items"
   validations:
-  - expression: "request.userInfo.username == 'system:serviceaccount:telox-system:telox-worker'"
-    message: "resourceclaims in domain namespaces are created only by telox-worker"
+  - expression: "request.userInfo.username == 'system:serviceaccount:telox-system:telox-instance-worker'"
+    message: "resourceclaims in domain namespaces are created only by telox-instance-worker"
   - expression: "size(variables.owners) == 1 && (variables.owners[0].kind == 'Instance' ? variables.instances : variables.serverless).exists(i, i.metadata.name == variables.owners[0].name)"
     message: "resourceclaim must have an ownerReference to an existing Instance or ServerlessInstance"
   - expression: "object.spec.devices.requests.all(r, has(r.exactly) && r.exactly.deviceClassName.startsWith('telox-'))"

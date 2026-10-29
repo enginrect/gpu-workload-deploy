@@ -1,4 +1,4 @@
-# Domain c 전개 오브젝트(분담 재편 §3.16): RoleBinding 2 · ResourceQuota · default-deny → Karmada 경로(PP domain-objects). 예전 telox-worker Domain reconcile 결과를 Overwrite로 채택(uid 유지).
+# Domain c 전개 오브젝트(분담 재편 §3.16): RoleBinding 2 · ResourceQuota · default-deny → Karmada 경로(PP domain-objects). 예전 telox-instance-worker Domain reconcile 결과를 Overwrite로 채택(uid 유지).
 # label telox.io/domain=c가 PP 선택 기준. agent는 ClusterRole telox:domain-member · telox:telox-broker-exec에만 bind 가능(RBAC resourceNames + VAP)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

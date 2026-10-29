@@ -1,7 +1,7 @@
 # ServerlessInstance CRD — serverless 배포 단위. ServerlessInstance 하나 = endpoint 하나 = worker Pod 0..N(같은 SKU · 같은 이미지).
 # Instance와 다른 점: 배치 보장 없음(NUMA strict 힌트 · 고정 LB IP · PDB · PVC 없음), worker 수는 gateway가 scale 서브리소스로 바꿈, Service는 ClusterIP(gateway namespace에서만 ingress).
 # 같은 점: domain namespace · project label · SKU · Kyverno 관문 · worker Pod의 PSS · seccomp · userns · default-deny · GPU 배타(DRA claim).
-# spec = telox-manager(1단계 kubeconfig · 2단계 고객 토큰), spec.workers = telox-gateway(scale 서브리소스만), status = telox-worker
+# spec = telox-manager(1단계 kubeconfig · 2단계 고객 토큰), spec.workers = telox-gateway(scale 서브리소스만), status = telox-instance-worker
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
