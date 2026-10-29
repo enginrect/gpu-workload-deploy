@@ -20,6 +20,12 @@ rules:
 - apiGroups: [rbac.authorization.k8s.io]
   resources: [clusterroles, clusterrolebindings]
   verbs: [get]
+# --- unified auth(install.md §23): Controlplane이 clusters/proxy 권한 보유자로 `karmada-impersonator` ClusterRole(impersonate 규칙)을 만들어 Work로 보냄. agent가 그 ClusterRole을 갱신해야 proxy 권한 변경이 반영됨(없으면 Work Applied False).
+# impersonate는 agent가 가진 권한이 아니라 escalate가 필요 — 이 ClusterRole 하나로 한정, 규칙 내용은 VAP telox-agent-impersonator(40-karmada-agent-scope-vap.yaml)가 impersonate만 허용.
+- apiGroups: [rbac.authorization.k8s.io]
+  resources: [clusterroles]
+  resourceNames: ["karmada-impersonator"]
+  verbs: [update, patch, escalate]
 # --- Domain 전개(Karmada 경로): namespace · RoleBinding · ResourceQuota · default-deny · LB pool
 - apiGroups: [""]
   resources: [namespaces, resourcequotas]
