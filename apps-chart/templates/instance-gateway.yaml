@@ -1,0 +1,31 @@
+# wave 7 — telox-instance-gateway(cluster당 Envoy Gateway 1, HTTP hostname · TCP port 입구). hostname = cluster address(sshHost와 동일), IP는 cluster Secret annotation telox.io/gw-ip. TLS Secret은 리포 밖
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.cluster }}-instance-gateway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "7"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: {{ .Values.cluster }}
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    path: platform/instance-gateway
+    helm:
+      parameters:
+      - {name: hostname, value: {{ required "sshHost (cluster Secret label telox.io/ssh-host) = cluster address" .Values.sshHost | quote }}}
+      - {name: ip, value: {{ required "gwIp (cluster Secret annotation telox.io/gw-ip)" .Values.gwIp | quote }}}
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

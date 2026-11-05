@@ -1,0 +1,7 @@
+# 클러스터별 값은 Application helm parameters(apps/instance-gateway.yaml · apps-chart instance-gateway.yaml)에서
+hostname: ""                        # 필수 — cluster address {region}-{kube-system uid 5자}.<base domain>. listeners는 *.<hostname>, ExternalDNS wildcard A 레코드 1개(Service annotation)
+ip: ""                              # 필수 — platform pool IP 1개(lbipam.cilium.io/ips). region-1은 telox-ssh 풀(10.7.56.80/29) 안, region-2는 default-pool
+tlsSecret: telox-instance-gateway-tls   # telox-system kubernetes.io/tls, *.<hostname>. 리포 밖(cert-manager 전환 전까지 수동 생성)
+nodeSelector: {telox.io/edge: "true"}   # Envoy DaemonSet = edge node마다 1(L2 announce 후보와 같은 node, eTP Local)
+tolerations:
+- {key: node-restriction.kubernetes.io/pool, operator: Equal, value: gpu, effect: NoSchedule}

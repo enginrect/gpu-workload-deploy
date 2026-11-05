@@ -1,5 +1,5 @@
 {{- if .Values.pool.cidr }}
-# SSH gateway 전용 LB 대역(플랫폼 풀). domain lbPool과 겹치지 않게
+# platform gateway LB 대역(SSH gateway · instance gateway). domain lbPool과 겹치지 않게
 apiVersion: cilium.io/v2
 kind: CiliumLoadBalancerIPPool
 metadata:
@@ -8,5 +8,5 @@ spec:
   blocks:
   - cidr: {{ .Values.pool.cidr }}
   serviceSelector:
-    matchLabels: {telox.io/component: ssh-gateway}
+    matchExpressions: [{key: telox.io/component, operator: In, values: [ssh-gateway, instance-gateway]}]
 {{- end }}

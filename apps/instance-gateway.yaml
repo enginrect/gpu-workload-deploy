@@ -1,0 +1,31 @@
+# wave 7 — telox-instance-gateway(cluster당 Envoy Gateway 1, HTTP hostname · TCP port 입구). 주소는 hostname 매개변수(cluster address = SSH gateway와 같은 {region}-{kube-system uid 5자}.<base domain>), IP는 platform pool(telox-ssh 풀) 안 1개. TLS Secret은 리포 밖
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: instance-gateway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "7"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+spec:
+  project: telox-platform
+  destination:
+    name: tech-neo-wkld
+  source:
+    repoURL: https://github.com/enginrect/gpu-workload-deploy.git
+    targetRevision: main
+    path: platform/instance-gateway
+    helm:
+      parameters:
+      - {name: hostname, value: "r1-6d905.neo.test"}
+      - {name: ip, value: "10.7.56.81"}
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false
+    syncOptions:
+    - ServerSideApply=true
+    - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff: {duration: 10s, factor: 2, maxDuration: 3m}

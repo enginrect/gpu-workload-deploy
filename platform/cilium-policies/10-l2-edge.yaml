@@ -1,0 +1,11 @@
+# gateway용 L2 announcement — edge node(label telox.io/edge)만 광고 후보. Envoy DaemonSet · SSH gateway가 edge node마다 있어 eTP Local이 성립(L2 + Local 공식 미지원의 회피 = edge 고정, Network page)
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata: {name: telox-gateway-edge}
+spec:
+  externalIPs: false
+  loadBalancerIPs: true
+  nodeSelector:
+    matchLabels: {telox.io/edge: "true"}
+  serviceSelector:
+    matchExpressions: [{key: telox.io/component, operator: In, values: [instance-gateway]}]

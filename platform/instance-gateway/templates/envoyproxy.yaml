@@ -1,0 +1,24 @@
+# Envoy data plane — edge node마다 1(DaemonSet) · LoadBalancer eTP Local · IP 고정 · ExternalDNS wildcard 레코드(service source)
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: telox-instance-gateway
+  namespace: telox-system
+  labels: {telox.io/component: instance-gateway}
+spec:
+  logging: {level: {default: warn}}
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDaemonSet:
+        pod:
+          nodeSelector: {{ toJson .Values.nodeSelector }}
+          tolerations: {{ toJson .Values.tolerations }}
+        strategy: {type: RollingUpdate, rollingUpdate: {maxUnavailable: 1}}
+      envoyService:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          lbipam.cilium.io/ips: {{ required "ip is required (platform pool IP)" .Values.ip | quote }}
+          external-dns.kubernetes.io/hostname: {{ printf "*.%s" (required "hostname is required" .Values.hostname) | quote }}   # cluster wildcard 레코드 1개 — HTTPRoute마다 레코드를 만들지 않음(Gateway에 dns-source label 없음)
+        labels: {telox.io/component: instance-gateway}   # platform pool · edge L2 policy serviceSelector

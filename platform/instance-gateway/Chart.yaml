@@ -1,0 +1,5 @@
+apiVersion: v2
+name: instance-gateway
+description: telox-instance-gateway — workload cluster마다 1개인 Envoy Gateway(HTTP hostname · TCP port 입구). platform 직접 경로, Instance 노출 object(Route · ListenerSet)는 Karmada 경로로 domain namespace에
+type: application
+version: 0.1.0
