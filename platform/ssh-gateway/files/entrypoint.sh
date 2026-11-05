@@ -59,7 +59,7 @@ sync_loop() {
     kubectl get instances.telox.io -A -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null | while read -r i; do
       [ -n "$i" ] || continue
       id "$i" >/dev/null 2>&1 && continue
-      if adduser -D -H -s /bin/sh -G telox "$i" 2>/dev/null; then
+      if adduser -D -s /bin/sh -G telox "$i" 2>/dev/null; then   # home /home/<instance>(없으면 sshd가 chdir 경고)
         sed -i "s|^$i:![^:]*:|$i:*:|" /etc/shadow
         echo "user-sync: created login $i"
       fi
