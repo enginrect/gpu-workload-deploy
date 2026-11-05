@@ -1,4 +1,4 @@
-# k3 — HTTP 노출 확인용 Instance(nginx unprivileged 8080). Service + NetworkPolicy + HTTPRoute(호스트명 패턴 ② <name>-<port>-<project>-<domain>.r1.neo.test)
+# k3 — HTTP 노출 확인용 Instance(nginx unprivileged 8080). Service + NetworkPolicy + HTTPRoute(hostname <name>-<port>-<project>-<domain>.<cluster address>, parentRef = telox-instance-gateway(telox-system))
 apiVersion: telox.io/v1alpha1
 kind: Instance
 metadata: {name: k3, namespace: domain-c, labels: {telox.io/project: dev}}
@@ -24,7 +24,7 @@ spec:
   ingress:
   - from:
     - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: envoy-gateway-system}}
-      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: gw-dev, gateway.envoyproxy.io/owning-gateway-namespace: domain-c}}
+      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: telox-instance-gateway, gateway.envoyproxy.io/owning-gateway-namespace: telox-system}}
     ports: [{protocol: TCP, port: 8080}]
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -32,9 +32,9 @@ kind: HTTPRoute
 metadata: {name: k3-8080, namespace: domain-c, labels: {telox.io/instance: k3}}
 spec:
   parentRefs:
-  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev, sectionName: https}
-  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev, sectionName: http}
-  hostnames: [k3-8080-dev-c.r1.neo.test]
+  - {group: gateway.networking.k8s.io, kind: Gateway, name: telox-instance-gateway, namespace: telox-system, sectionName: https}
+  - {group: gateway.networking.k8s.io, kind: Gateway, name: telox-instance-gateway, namespace: telox-system, sectionName: http}
+  hostnames: [k3-8080-dev-c.r1-6d905.neo.test]
   rules:
   - matches: [{path: {type: PathPrefix, value: /}}]
     backendRefs: [{group: "", kind: Service, name: k3, port: 8080, weight: 1}]

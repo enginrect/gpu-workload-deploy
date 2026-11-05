@@ -1,4 +1,4 @@
-# domain-d(region-2) Instance d1 — nginx unprivileged 8080 + Service + NetworkPolicy + HTTPRoute(d1-8080-dev-d.r2.neo.test)
+# domain-d(region-2) Instance d1 — nginx unprivileged 8080 + Service + NetworkPolicy + HTTPRoute(d1-8080-dev-d.r2-c742c.neo.test, parentRef = telox-instance-gateway(telox-system))
 apiVersion: policy.karmada.io/v1alpha1
 kind: PropagationPolicy
 metadata: {name: instances, namespace: domain-d}
@@ -37,7 +37,7 @@ spec:
   ingress:
   - from:
     - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: envoy-gateway-system}}
-      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: gw-dev, gateway.envoyproxy.io/owning-gateway-namespace: domain-d}}
+      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: telox-instance-gateway, gateway.envoyproxy.io/owning-gateway-namespace: telox-system}}
     ports: [{protocol: TCP, port: 8080}]
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -45,9 +45,9 @@ kind: HTTPRoute
 metadata: {name: d1-8080, namespace: domain-d, labels: {telox.io/instance: d1}}
 spec:
   parentRefs:
-  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev, sectionName: https}
-  - {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev, sectionName: http}
-  hostnames: [d1-8080-dev-d.r2.neo.test]
+  - {group: gateway.networking.k8s.io, kind: Gateway, name: telox-instance-gateway, namespace: telox-system, sectionName: https}
+  - {group: gateway.networking.k8s.io, kind: Gateway, name: telox-instance-gateway, namespace: telox-system, sectionName: http}
+  hostnames: [d1-8080-dev-d.r2-c742c.neo.test]
   rules:
   - matches: [{path: {type: PathPrefix, value: /}}]
     backendRefs: [{group: "", kind: Service, name: d1, port: 8080, weight: 1}]

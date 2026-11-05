@@ -27,7 +27,7 @@ spec:
   - {name: TZ, value: Asia/Seoul}
   ports: [{name: ssh, port: 2222, protocol: TCP}]   # protocol은 CRD default — 생략하면 OutOfSync
 ---
-# k1 노출: ClusterIP Service(이름 = Instance) + project gateway(gw-dev) Envoy pod만 허용하는 NetworkPolicy + ListenerSet(TCP 10022) + TCPRoute → sshd 2222
+# k1 노출: ClusterIP Service(이름 = Instance) + telox-instance-gateway(telox-system, cluster당 1) Envoy pod만 허용하는 NetworkPolicy + ListenerSet(TCP 10022, 다른 namespace의 Gateway에 부착 — allowedListeners selector) + TCPRoute → sshd 2222
 apiVersion: v1
 kind: Service
 metadata: {name: k1, namespace: domain-c, labels: {telox.io/instance: k1, telox.io/project: dev}}
@@ -45,14 +45,14 @@ spec:
   ingress:
   - from:
     - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: envoy-gateway-system}}
-      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: gw-dev, gateway.envoyproxy.io/owning-gateway-namespace: domain-c}}
+      podSelector: {matchLabels: {gateway.envoyproxy.io/owning-gateway-name: telox-instance-gateway, gateway.envoyproxy.io/owning-gateway-namespace: telox-system}}
     ports: [{protocol: TCP, port: 2222}]
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: ListenerSet
 metadata: {name: k1, namespace: domain-c, labels: {telox.io/instance: k1}}
 spec:
-  parentRef: {group: gateway.networking.k8s.io, kind: Gateway, name: gw-dev}
+  parentRef: {group: gateway.networking.k8s.io, kind: Gateway, name: telox-instance-gateway, namespace: telox-system}
   listeners:
   - name: ssh
     protocol: TCP
@@ -65,7 +65,7 @@ metadata:
   name: k1-2222
   namespace: domain-c
   labels: {telox.io/instance: k1}
-  annotations: {external-dns.kubernetes.io/hostname: k1-22-dev-c.r1.neo.test}   # ExternalDNS 0.23은 tcproute source 제외라 미발행
+  annotations: {telox.io/endpoint: "r1-6d905.neo.test:10022"}   # TCP는 cluster address + port(레코드 없음, wildcard A가 가름)
 spec:
   parentRefs: [{group: gateway.networking.k8s.io, kind: ListenerSet, name: k1, sectionName: ssh}]
   rules: [{backendRefs: [{group: "", kind: Service, name: k1, port: 2222, weight: 1}]}]
