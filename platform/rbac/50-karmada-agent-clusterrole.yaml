@@ -53,9 +53,9 @@ rules:
 - apiGroups: [policy]
   resources: [poddisruptionbudgets]
   verbs: [get, list, watch, create, update, patch, delete]
-- apiGroups: [gateway.networking.k8s.io]
-  resources: [gateways, httproutes, listenersets, tcproutes]
+- apiGroups: [gateway.networking.k8s.io]   # Instance 노출 object만(Gateway · EnvoyProxy는 직접 경로 telox-instance-gateway)
+  resources: [httproutes, listenersets, tcproutes]
   verbs: [get, list, watch, create, update, patch, delete]
-- apiGroups: [gateway.envoyproxy.io]
-  resources: [envoyproxies]
+- apiGroups: [gateway.envoyproxy.io]   # Instance 소유 정책 — allowFrom(SecurityPolicy) · rate limit 덮기(BackendTrafficPolicy)
+  resources: [securitypolicies, backendtrafficpolicies]
   verbs: [get, list, watch, create, update, patch, delete]

@@ -15,8 +15,8 @@ spec:
     - {apiGroups: [networking.k8s.io], apiVersions: [v1], operations: [CREATE, UPDATE], resources: [networkpolicies]}
     - {apiGroups: [policy], apiVersions: [v1], operations: [CREATE, UPDATE], resources: [poddisruptionbudgets]}
     - {apiGroups: [telox.io], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: [instances, serverlessinstances]}
-    - {apiGroups: [gateway.networking.k8s.io], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: [gateways, httproutes, tcproutes, listenersets]}
-    - {apiGroups: [gateway.envoyproxy.io], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: [envoyproxies]}
+    - {apiGroups: [gateway.networking.k8s.io], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: [httproutes, tcproutes, listenersets]}
+    - {apiGroups: [gateway.envoyproxy.io], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: [securitypolicies, backendtrafficpolicies]}
     - {apiGroups: [apps], apiVersions: [v1], operations: [CREATE, UPDATE], resources: [deployments]}
   matchConditions:
   - name: karmada-agent
