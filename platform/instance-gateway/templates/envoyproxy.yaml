@@ -12,6 +12,7 @@ spec:
     kubernetes:
       envoyDaemonSet:
         pod:
+          annotations: {telox.io/rollout: {{ .Values.rollout | quote }}}   # 값 변경 = DaemonSet rolling update 유발(검증 · 운영 강제 재기동용)
           nodeSelector: {{ toJson .Values.nodeSelector }}
           tolerations: {{ toJson .Values.tolerations }}
         strategy: {type: RollingUpdate, rollingUpdate: {maxUnavailable: 1}}

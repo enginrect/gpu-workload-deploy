@@ -5,3 +5,5 @@ tlsSecret: telox-instance-gateway-tls   # telox-system kubernetes.io/tls, *.<hos
 nodeSelector: {telox.io/edge: "true"}   # Envoy DaemonSet = edge node마다 1(L2 announce 후보와 같은 node, eTP Local)
 tolerations:
 - {key: node-restriction.kubernetes.io/pool, operator: Equal, value: gpu, effect: NoSchedule}
+rateLimit: {requests: 1000, unit: Second}   # route(Instance port)마다 · Envoy pod마다 local bucket, 초과 429. 운영값 미결(테스트는 Application 매개변수로 낮춤)
+rollout: "1"   # 바꾸면 Envoy DaemonSet rolling update(maxUnavailable 1)

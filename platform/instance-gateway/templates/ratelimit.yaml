@@ -1,0 +1,13 @@
+# platform 기본 rate limit — Gateway를 target하면 route마다 bucket이 따로(Envoy local rate limit, Envoy pod마다 · 공유 없음). 초과는 429. Instance별 값은 domain namespace의 BackendTrafficPolicy(Route target)로 덮음
+# TCP(ListenerSet · TCPRoute)에는 적용되지 않음 — TCP는 ClientTrafficPolicy connectionLimit(listener 단위)
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: telox-instance-gateway-default
+  namespace: telox-system
+spec:
+  targetRefs: [{group: gateway.networking.k8s.io, kind: Gateway, name: telox-instance-gateway}]
+  rateLimit:
+    local:
+      rules:
+      - limit: {requests: {{ .Values.rateLimit.requests }}, unit: {{ .Values.rateLimit.unit }}}

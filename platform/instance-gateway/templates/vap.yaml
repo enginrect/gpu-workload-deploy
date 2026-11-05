@@ -1,0 +1,35 @@
+# Instance 노출 object의 울타리(ValidatingAdmissionPolicy, domain namespace만) — Gateway API는 hostname 충돌 때 먼저 만든 Route가 이기므로(나중 Route는 RouteRulesOverlap) namespace 밖 hostname을 admission에서 거부. TCP 배정 port는 scope 10000–29999(22 · 80 · 443은 밖). parentRef는 telox-instance-gateway만
+# 같은 VAP를 karmada-apiserver에도 두면 neo-pod가 만드는 시점에 거부됨(멤버에서는 agent 쓰기가 거부 → Work Applied False)
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata: {name: telox-instance-gateway-routes}
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - {apiGroups: [gateway.networking.k8s.io], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: [httproutes, listenersets, tcproutes]}
+  variables:
+  - name: domain
+    expression: "has(namespaceObject.metadata.labels) && 'telox.io/domain' in namespaceObject.metadata.labels ? namespaceObject.metadata.labels['telox.io/domain'] : ''"
+  - name: suffix
+    expression: "'-' + variables.domain + '.{{ required "hostname" .Values.hostname }}'"
+  validations:
+  - expression: "object.kind != 'HTTPRoute' || (has(object.spec.hostnames) && object.spec.hostnames.size() > 0 && object.spec.hostnames.all(h, h.endsWith(variables.suffix) && !h.startsWith('*')))"
+    messageExpression: "'HTTPRoute hostnames must be <instance>-<port>-<project>' + variables.suffix + ' (domain ' + variables.domain + ')'"
+  - expression: "object.kind != 'HTTPRoute' || object.spec.parentRefs.all(p, p.name == 'telox-instance-gateway' && has(p.namespace) && p.namespace == 'telox-system')"
+    message: "HTTPRoute parentRefs must be Gateway telox-system/telox-instance-gateway"
+  - expression: "object.kind != 'ListenerSet' || (object.spec.parentRef.name == 'telox-instance-gateway' && has(object.spec.parentRef.namespace) && object.spec.parentRef.namespace == 'telox-system')"
+    message: "ListenerSet parentRef must be Gateway telox-system/telox-instance-gateway"
+  - expression: "object.kind != 'ListenerSet' || object.spec.listeners.all(l, l.protocol == 'TCP' && l.port >= 10000 && l.port <= 29999)"
+    message: "ListenerSet listeners must be TCP with port in 10000-29999 (cluster TCP port scope)"
+  - expression: "object.kind != 'TCPRoute' || object.spec.parentRefs.all(p, has(p.kind) && p.kind == 'ListenerSet' && (!has(p.namespace) || p.namespace == object.metadata.namespace))"
+    message: "TCPRoute parentRefs must be a ListenerSet in the same namespace"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata: {name: telox-instance-gateway-routes}
+spec:
+  policyName: telox-instance-gateway-routes
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector: {matchExpressions: [{key: telox.io/domain, operator: Exists}]}
