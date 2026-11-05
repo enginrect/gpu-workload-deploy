@@ -9,6 +9,9 @@ spec:
   - {apiVersion: v1, kind: Service, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
   - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
   - {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: ListenerSet, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: TCPRoute, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
+  - {apiVersion: gateway.envoyproxy.io/v1alpha1, kind: SecurityPolicy, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-1}}}
   placement:
     clusterAffinity:
       labelSelector: {matchLabels: {telox.io/role: wkld}}
@@ -23,6 +26,9 @@ spec:
   - {apiVersion: v1, kind: Service, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
   - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
   - {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: ListenerSet, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
+  - {apiVersion: gateway.networking.k8s.io/v1, kind: TCPRoute, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
+  - {apiVersion: gateway.envoyproxy.io/v1alpha1, kind: SecurityPolicy, namespace: domain-d, labelSelector: {matchLabels: {telox.io/region: region-2}}}
   placement:
     clusterAffinity:
       labelSelector: {matchLabels: {telox.io/role: wkld}}

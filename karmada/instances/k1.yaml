@@ -11,6 +11,7 @@ spec:
   - {apiVersion: gateway.networking.k8s.io/v1, kind: HTTPRoute, namespace: domain-c}
   - {apiVersion: gateway.networking.k8s.io/v1, kind: ListenerSet, namespace: domain-c}
   - {apiVersion: gateway.networking.k8s.io/v1, kind: TCPRoute, namespace: domain-c}
+  - {apiVersion: gateway.envoyproxy.io/v1alpha1, kind: SecurityPolicy, namespace: domain-c}   # allowFrom(출발지 CIDR) — Instance 소유, Route와 같이 감
   placement: {clusterAffinity: {clusterNames: [tech-neo-wkld]}}
 ---
 apiVersion: telox.io/v1alpha1
