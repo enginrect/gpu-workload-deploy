@@ -19,6 +19,8 @@ spec:
     helm:
       releaseName: external-dns
       skipCrds: true
+      parameters:
+      - {name: txtOwnerId, value: {{ .Values.cluster | quote }}}   # 한 zone에 cluster마다 레코드를 쓰므로 owner id = cluster 이름(values 파일 기본값은 region-1)
       valueFiles:
       - $values/platform/values/23-external-dns-values.yaml
   - repoURL: https://github.com/enginrect/gpu-workload-deploy.git

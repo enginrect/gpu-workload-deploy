@@ -3,4 +3,4 @@
 export KUBECONFIG=/run/telox/kubeconfig HOME=/tmp
 n="$(kubectl get instances.telox.io -A --field-selector "metadata.name=$1" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)"
 [ "$n" = "$1" ] || exit 0
-printf 'restrict,pty,command="/opt/telox/exec-into.sh" %s\n' "$(cat /keys/upstream_ed25519.pub)"
+printf 'restrict,pty,command="/opt/telox/exec-into.sh" %s\n' "$(cat /opt/telox/upstream.pub)"

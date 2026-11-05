@@ -9,6 +9,7 @@ chmod 1777 /var/log/telox
 touch /var/log/telox/sessions.log; chmod 666 /var/log/telox/sessions.log
 cp /opt/telox-src/keys.sh /opt/telox-src/exec-into.sh /opt/telox/
 chmod 755 /opt/telox/keys.sh /opt/telox/exec-into.sh
+cp /keys/upstream_ed25519.pub /opt/telox/upstream.pub; chmod 644 /opt/telox/upstream.pub   # AuthorizedKeysCommandUser(telox-keys)는 Secret(0400 root)을 못 읽음
 ssh-keygen -q -t ed25519 -N '' -f /etc/ssh/keys/ssh_host_ed25519_key   # 내부(127.0.0.1) 전용 — 고객이 보는 host key는 sshpiper의 Secret 키
 cat > /etc/ssh/sshd_config <<CFG
 Port 2022
