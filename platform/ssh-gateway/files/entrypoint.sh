@@ -1,5 +1,5 @@
 #!/bin/sh
-# telox-ssh-gateway stand-in: OpenSSH sshd = SSH gateway, kubectl exec with SA telox-broker = broker
+# telox-ssh-gateway stand-in, exec-sshd: OpenSSH sshd on 127.0.0.1:2022 behind sshpiper (basic SSH = kubectl exec with SA telox-broker). Customer keys are verified by sshpiper; this sshd trusts the platform upstream key only
 set -eu
 apk add --no-cache openssh-server openssh-keygen kubectl >/dev/null
 addgroup -g 2000 telox 2>/dev/null || true
@@ -9,10 +9,10 @@ chmod 1777 /var/log/telox
 touch /var/log/telox/sessions.log; chmod 666 /var/log/telox/sessions.log
 cp /opt/telox-src/keys.sh /opt/telox-src/exec-into.sh /opt/telox/
 chmod 755 /opt/telox/keys.sh /opt/telox/exec-into.sh
-[ -f /etc/ssh/keys/ssh_host_ed25519_key ] || ssh-keygen -q -t ed25519 -N '' -f /etc/ssh/keys/ssh_host_ed25519_key
-echo "host key: $(ssh-keygen -lf /etc/ssh/keys/ssh_host_ed25519_key.pub)"
+ssh-keygen -q -t ed25519 -N '' -f /etc/ssh/keys/ssh_host_ed25519_key   # 내부(127.0.0.1) 전용 — 고객이 보는 host key는 sshpiper의 Secret 키
 cat > /etc/ssh/sshd_config <<CFG
-Port 22
+Port 2022
+ListenAddress 127.0.0.1
 AddressFamily inet
 HostKey /etc/ssh/keys/ssh_host_ed25519_key
 PermitRootLogin no
@@ -35,7 +35,7 @@ MaxAuthTries 3
 ClientAliveInterval 60
 ClientAliveCountMax 3
 PidFile /run/sshd.pid
-PerSourcePenaltyExemptList 127.0.0.0/8,10.17.0.0/16,10.18.0.0/16
+PerSourcePenalties no
 CFG
 cat > /run/telox/kubeconfig <<KC
 apiVersion: v1
@@ -63,7 +63,7 @@ sync_loop() {
         echo "user-sync: created login $i"
       fi
     done
-    sleep 15
+    sleep 5
   done
 }
 sync_loop &

@@ -8,4 +8,4 @@ spec:
   nodeSelector:
     matchLabels: {telox.io/edge: "true"}
   serviceSelector:
-    matchExpressions: [{key: telox.io/component, operator: In, values: [instance-gateway]}]
+    matchExpressions: [{key: telox.io/component, operator: In, values: [instance-gateway, ssh-gateway]}]

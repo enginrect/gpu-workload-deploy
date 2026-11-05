@@ -1,7 +1,11 @@
 # 클러스터별 값은 Application helm parameters(apps/ssh-gateway.yaml · apps-chart ssh-gateway.yaml)에서
 hostname: ""                        # 필수 — {region}-{kube-system uid 5자}.<base domain>, ExternalDNS A 레코드
-image: docker.io/library/alpine:3.22
-nodeSelector: {node-restriction.kubernetes.io/pool: gpu}   # L2 announce 후보 노드와 같은 노드(eTP Local)
+image: docker.io/library/alpine:3.22                      # exec-sshd(기본 SSH = exec 대역) · sync 컨테이너
+piperImage: docker.io/farmer1992/sshpiperd:full-v1.6.1   # SSH 입구 대역(sshpiper): 고객 키 검증 → 기본은 exec-sshd로, full은 Instance sshd로 pipe
+keysSecret: telox-ssh-gateway-keys  # telox-system Secret(리포 밖, cluster마다): ssh_host_ed25519_key(gateway host key 영속) · upstream_ed25519(.pub)(gateway → Instance sshd · exec-sshd 상행 키)
+syncInterval: 3                     # Instance → sshpiper 설정 갱신 주기(초). 대역 한계 — 실제 gateway는 API watch
+recording: true                     # 세션 녹화(asciicast, /var/log/telox/rec/<instance>/)
+nodeSelector: {telox.io/edge: "true"}   # edge node마다 1(DaemonSet) — telox-instance-gateway와 같은 node, L2 announce 후보(eTP Local)
 tolerations:
 - {key: node-restriction.kubernetes.io/pool, operator: Equal, value: gpu, effect: NoSchedule}
 pool:

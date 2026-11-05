@@ -1,0 +1,63 @@
+# telox-ssh-gateway 대역 = sshpiper(입구, 22) + exec-sshd(127.0.0.1:2022, 기본 SSH = kubectl exec) + sync(Instance → sshpiper workingdir). edge node마다 1
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: telox-ssh-gateway
+  namespace: telox-system
+  labels: {app: telox-ssh-gateway, telox.io/component: ssh-gateway}
+spec:
+  selector: {matchLabels: {app: telox-ssh-gateway}}
+  updateStrategy: {type: RollingUpdate, rollingUpdate: {maxUnavailable: 1}}
+  template:
+    metadata:
+      labels: {app: telox-ssh-gateway, telox.io/component: ssh-gateway}
+    spec:
+      serviceAccountName: telox-broker
+      nodeSelector: {{ toJson .Values.nodeSelector }}
+      tolerations: {{ toJson .Values.tolerations }}
+      containers:
+      - name: piper
+        image: {{ .Values.piperImage }}
+        command: [/sshpiperd/sshpiperd]
+        args:
+        - --server-key=/keys/ssh_host_ed25519_key
+        - --port=22
+        - --log-level=info
+        - --login-grace-time=30s
+{{- if .Values.recording }}
+        - --screen-recording-dir=/var/log/telox/rec
+        - --screen-recording-format=asciicast
+        - --username-as-recorddir
+{{- end }}
+        - /sshpiperd/plugins/workingdir
+        - --root=/var/sshpiper
+        - --no-password-auth
+        ports: [{name: ssh, containerPort: 22, protocol: TCP}]
+        readinessProbe: {tcpSocket: {port: 22}, initialDelaySeconds: 3, periodSeconds: 10}
+        resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {memory: 256Mi}}
+        volumeMounts:
+        - {name: keys, mountPath: /keys, readOnly: true}
+        - {name: workingdir, mountPath: /var/sshpiper}
+        - {name: logs, mountPath: /var/log/telox}
+      - name: exec-sshd
+        image: {{ .Values.image }}
+        command: [/bin/sh, /opt/telox-src/entrypoint.sh]
+        resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {memory: 256Mi}}
+        volumeMounts:
+        - {name: scripts, mountPath: /opt/telox-src, readOnly: true}
+        - {name: keys, mountPath: /keys, readOnly: true}
+        - {name: logs, mountPath: /var/log/telox}
+      - name: sync
+        image: {{ .Values.image }}
+        command: [/bin/sh, /opt/telox-src/sync.sh]
+        env: [{name: SYNC_INTERVAL, value: {{ .Values.syncInterval | quote }}}]
+        resources: {requests: {cpu: 20m, memory: 32Mi}, limits: {memory: 128Mi}}
+        volumeMounts:
+        - {name: scripts, mountPath: /opt/telox-src, readOnly: true}
+        - {name: keys, mountPath: /keys, readOnly: true}
+        - {name: workingdir, mountPath: /var/sshpiper}
+      volumes:
+      - {name: scripts, configMap: {name: telox-ssh-gateway-scripts, defaultMode: 0555}}
+      - {name: keys, secret: {secretName: {{ .Values.keysSecret }}, defaultMode: 0400}}
+      - {name: workingdir, emptyDir: {}}
+      - {name: logs, emptyDir: {}}
