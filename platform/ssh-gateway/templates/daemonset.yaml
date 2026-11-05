@@ -11,6 +11,7 @@ spec:
   template:
     metadata:
       labels: {app: telox-ssh-gateway, telox.io/component: ssh-gateway}
+      annotations: {checksum/scripts: {{ (print (.Files.Get "files/entrypoint.sh") (.Files.Get "files/keys.sh") (.Files.Get "files/exec-into.sh") (.Files.Get "files/sync.sh")) | sha256sum | trunc 16 | quote }}}   # 스크립트(ConfigMap) 변경 = rolling update
     spec:
       serviceAccountName: telox-broker
       nodeSelector: {{ toJson .Values.nodeSelector }}
