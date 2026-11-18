@@ -26,6 +26,11 @@ rules:
   resources: [clusterroles]
   resourceNames: ["karmada-impersonator"]
   verbs: [update, patch, escalate]
+# --- 퇴역(karmadactl unregister, install.md §32): Controlplane이 impersonator Work를 지우면 agent가 멤버의 ClusterRole · ClusterRoleBinding karmada-impersonator를 삭제해야 Work finalizer가 풀림. delete가 없으면 unregister가 "Failed to delete works object" 타임아웃(2026-11-18 region-1 퇴역 때 실측)
+- apiGroups: [rbac.authorization.k8s.io]
+  resources: [clusterroles, clusterrolebindings]
+  resourceNames: ["karmada-impersonator"]
+  verbs: [delete]
 # --- Domain 전개(Karmada 경로): namespace · RoleBinding · ResourceQuota · default-deny · LB pool
 - apiGroups: [""]
   resources: [namespaces, resourcequotas]
