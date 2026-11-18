@@ -46,4 +46,4 @@ spec:
   - {apiVersion: rbac.authorization.k8s.io/v1, kind: RoleBinding, namespace: domain-d, labelSelector: {matchLabels: {telox.io/domain: d}}}
   - {apiVersion: v1, kind: ResourceQuota, namespace: domain-d, labelSelector: {matchLabels: {telox.io/domain: d}}}
   - {apiVersion: networking.k8s.io/v1, kind: NetworkPolicy, namespace: domain-d, labelSelector: {matchLabels: {telox.io/domain: d}}}
-  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld, tech-neo-wkld-region2]}}
+  placement: {clusterAffinity: {clusterNames: [tech-neo-wkld-region2]}}

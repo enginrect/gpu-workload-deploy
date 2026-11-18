@@ -1,8 +1,8 @@
-# gpu-workload-deploy — tech-neo-wkld 플랫폼 GitOps (Argo CD app-of-apps)
+# gpu-workload-deploy — telox workload cluster 플랫폼 GitOps (Argo CD)
 
-관리 클러스터 **tech-neo-mgmt**의 Argo CD(v3.5.5, ns `argocd`, `resourceTrackingMethod: annotation`)가 workload 클러스터
-**tech-neo-wkld**(Argo CD cluster `tech-neo-wkld`, `https://10.7.56.210:6443`)의 플랫폼 구성 요소 전부를 관리한다.
-helm · kubectl로 설치돼 돌던 것을 **재시작 · 중단 없이 채택(adopt)** 했다(2026-10-20, 결과는 [채택 결과](#채택-결과-2026-10-20)).
+관리 클러스터 **tech-neo-mgmt**의 Argo CD(v3.5.5, ns `argocd`, `resourceTrackingMethod: annotation`)가 workload cluster들의 플랫폼 구성 요소 전부를 관리한다.
+cluster는 Argo CD cluster Secret(label `telox.io/role=wkld`)로 등록하고 `bootstrap/applicationset.yaml`이 cluster마다 root Application을 만들어 `apps-chart/`를 렌더한다(지금은 `tech-neo-wkld-region2` 하나).
+첫 cluster `tech-neo-wkld`(region-1, `https://10.7.56.210:6443`)는 helm · kubectl 설치본을 **재시작 · 중단 없이 채택(adopt)** 하는 데 썼고(2026-10-20, 결과는 [채택 결과](#채택-결과-2026-10-20)) 2026-11-18 퇴역했다(직접 App `apps/` · root `bootstrap/root-app.yaml` · Karmada 경로의 `domain-c/` · `instances/` · SKU h100-1 삭제).
 
 원본: `~/Documents/work/cursor-workspace/telox-tech-wkld-manifests-2026-10-13`(git 아님)의 `manifests/` · `values/`를 복사 — 설계 번호 · 주석 유지.
 이 리포는 **public** — 비밀번호 · 토큰 · 인증서 · 개인키 · kubeconfig · SSH 공개키를 커밋하지 않는다(사설 IP 10.7.x는 테스트라 허용).
@@ -10,11 +10,11 @@ helm · kubectl로 설치돼 돌던 것을 **재시작 · 중단 없이 채택(a
 ## 디렉터리 구조
 
 ```
-bootstrap/                     hub에 손으로 apply (Argo CD가 관리하지 않음)
-  appproject.yaml              AppProject telox-platform — 대상 tech-neo-wkld, 모든 ns · cluster-scoped 허용
+bootstrap/                     mgmt에 손으로 apply (Argo CD가 관리하지 않음)
+  appproject.yaml              AppProject telox-platform — 대상 wkld cluster들(cluster Secret 이름), 모든 ns · cluster-scoped 허용
   repositories.yaml            docker.io/envoyproxy OCI helm 저장소 선언(enableOCI, 자격 증명 없음)
-  root-app.yaml                root Application telox-platform-root → apps/
-apps/                          자식 Application 14개 (root가 directory source로 읽음)
+  applicationset.yaml          ApplicationSet telox-platform — cluster Secret(label telox.io/role=wkld)마다 root Application telox-platform-<cluster> → apps-chart/
+apps-chart/                    cluster 1개의 자식 Application 17개(helm 렌더, 매개변수 = cluster Secret label · annotation)
 platform/
   telox-crds/               00-crds.yaml(Domain · SKU · Instance), 02-serverlessinstance-crd.yaml
   chart-crds/<chart>-<ver>/    helm 차트 crds/ 디렉터리 복사본(gpu-operator · NFD, dra-driver, nri-topo, external-dns)
@@ -100,7 +100,7 @@ extraArgs:
   - --gateway-label-filter=tktech.thakicloud.io/dns-source=true
   # --inmemory-zone 삭제
 domainFilters: [<실제 zone>]                # neo.test → 실제 zone
-txtOwnerId: tech-neo-wkld                   # 유지(다른 클러스터와 겹치지 않게)
+txtOwnerId: <cluster 이름>                  # apps-chart가 Application 매개변수로 넣음(cluster마다 달라야 함)
 ```
 
 `sources`(gateway-httproute · gateway-tlsroute), `policy: sync`, `enableGatewayListenerSets`는 그대로.
@@ -215,4 +215,12 @@ sync 전 diff 원문: `docs/adoption-2026-10-20/argocd-diff-before-sync/`.
 2. 직접 경로 — Argo cluster Secret에 label `telox.io/role=wkld` · `telox.io/region=<region>` · `telox.io/gpu=true|false`(false면 gpu-operator · ndra · nri-topo 생략) + AppProject `telox-platform` destinations에 이름 추가 → `bootstrap/applicationset.yaml`(cluster generator)이 `telox-platform-<name>` root Application을 만들고 `apps-chart/`를 렌더(Application 이름 접두사 = 클러스터 이름)
 3. 플랫폼 App이 전부 Synced · Healthy가 된 **뒤에** Karmada Cluster label `telox.io/role=wkld` · `telox.io/region=<region>` — Karmada는 Cluster 변경 이벤트에만 전 binding을 재스케줄하고 멤버 apiEnablements 갱신엔 하지 않으므로, 먼저 label을 붙였으면 플랫폼 완료 뒤 label을 하나 더 바꿔 재트리거
 4. domain 배치 — `karmada/domain-<x>/`에 namespace(skip label) · Domain · project Gateway + ClusterPropagationPolicy `clusterNames: [<name>]`, Instance는 `karmada/instances-<x>/`. region 전용 SKU는 CPP `fieldSelector region In [<region>]`. 클러스터별 값 차이는 ClusterOverridePolicy(targetCluster label) — **전파 전에** 선언(SKU처럼 불변 kind는 나중에 붙이면 멤버가 거부)
-5. tech L2 환경 — Envoy pod와 Cilium L2 announce가 같은 node여야 함(eTP Local). edge node에 `telox.io/edge=true` + pool label 1개만, EnvoyProxy nodeSelector edge. ExternalDNS `txtOwnerId`는 클러스터별로 달라야 함(현재 values 공통 — 미반영)
+5. tech L2 환경 — Envoy pod와 Cilium L2 announce가 같은 node여야 함(eTP Local). edge node에 `telox.io/edge=true` + pool label 1개만, EnvoyProxy nodeSelector edge. ExternalDNS `txtOwnerId`는 클러스터별로 달라야 함(apps-chart가 cluster 이름을 매개변수로 넣음)
+
+## wkld 클러스터 퇴역 — agent가 살아 있는 동안(2026-11-18 tech-neo-wkld 절차)
+
+1. 그 cluster에만 가는 Karmada 경로 오브젝트를 Git에서 삭제 · 두 cluster에 걸친 CPP · PP의 `clusterNames`에서 이름 제거 · 그 cluster 전용 COP · region PP · SKU 삭제(이 커밋). 삭제될 Application에 `resources-finalizer.argocd.argoproj.io`를 먼저 붙여야 prune이 Controlplane 오브젝트까지 지움(karmada-root는 prune true지만 자식 App에 finalizer 없음)
+2. Git 밖에서 손으로 넣은 Controlplane 오브젝트(Instance · 정책)는 kubectl로 삭제 — Pod는 멤버에서 3초 안에 사라짐
+3. 직접 경로 — Argo CD Application(cluster Secret을 destination으로 쓰는 것)을 지우고(resources-finalizer 없음 → 멤버 안은 그대로), cluster Secret 삭제, AppProject destinations에서 제거
+4. `karmadactl unregister <name> --karmada-config ~/.kube/tech-neo-karmada.config --cluster-kubeconfig <member kubeconfig>` — Cluster 오브젝트 · execution namespace · karmada-cluster Secret · 멤버 karmada-system(agent)을 지움. 멤버가 먼저 사라지면 Work finalizer(agent 몫)가 안 풀려 Cluster가 Terminating에 멈춤
+5. 그 뒤 cluster 자체 삭제

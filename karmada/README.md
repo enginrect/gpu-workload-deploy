@@ -10,7 +10,7 @@ Git → Argo CD → karmada-apiserver(cluster `tech-neo-karmada`) → (Cluster)P
 - `root.yaml` → `apps/` — app-of-apps
   - wave 0 `crds.yaml` → `platform/telox-crds/`(telox CRD 4종을 karmada-apiserver에 저장만 — template 수신용. 멤버 CRD는 직접 경로의 같은 파일) · `interpreter/`(RIC 9종)
   - (이행됨) ns telox-system · SA · ClusterRole/Binding · Kyverno 정책 · SSH gateway → `platform/telox-rbac/` · `platform/kyverno-policies/` · `platform/ssh-gateway/`(직접 경로)
-  - wave 3 `sku/` → 4 `domain-c/`(ns · Domain · CPP + `gateway-<project>.yaml` = project별 EnvoyProxy ep-dev · Gateway gw-dev · PP) → 5 `instances/`(Instance + Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute, PP 하나)
+  - wave 3 `sku/` → 4 `domain-d/`(ns · Domain · CiliumLoadBalancerIPPool · CPP + domain 전개 오브젝트 · PP) → 5 `instances-d/`(Instance + Service · NetworkPolicy · HTTPRoute · ListenerSet · TCPRoute · SecurityPolicy, region 라벨 PP `pp-regions.yaml`). region-1(`domain-c/` · `instances/`)은 2026-11-18 cluster 퇴역과 함께 삭제
 - 전파 범위
   - 모든 wkld 멤버(`clusterAffinity.labelSelector telox.io/role=wkld`) — SKU
   - domain이 걸치는 클러스터들(`clusterNames`, 클러스터별 값은 ClusterOverridePolicy) — Domain + domain namespace. Instance는 라벨 `telox.io/region`의 PropagationPolicy(labelSelector + region fieldSelector)가 그 리전의 클러스터 하나로(`instances-d/pp-regions.yaml`)

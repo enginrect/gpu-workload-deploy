@@ -1,12 +1,12 @@
-# hub(tech-neo-mgmt) argocd ns에 손으로 apply — root-app.yaml과 같이.
-# 자식 Application 전부가 속하는 프로젝트. 대상은 tech-neo-wkld 하나, 모든 ns · cluster-scoped 리소스 허용.
+# mgmt(tech-neo-mgmt) argocd ns에 손으로 apply — applicationset.yaml과 같이.
+# 자식 Application 전부가 속하는 프로젝트. 대상은 wkld cluster들(Argo CD cluster Secret 이름 — cluster 등록 · 퇴역 때 여기도 갱신), 모든 ns · cluster-scoped 리소스 허용.
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: telox-platform
   namespace: argocd
 spec:
-  description: tech-neo-wkld platform components (GitOps adoption of helm/kubectl installs)
+  description: telox wkld platform components
   sourceRepos:
   - https://github.com/enginrect/gpu-workload-deploy.git
   - https://kyverno.github.io/kyverno
@@ -15,8 +15,6 @@ spec:
   - docker.io/envoyproxy
   - https://kubernetes-sigs.github.io/external-dns/
   destinations:
-  - name: tech-neo-wkld
-    namespace: '*'
   - name: tech-neo-wkld-region2
     namespace: '*'
   clusterResourceWhitelist:
